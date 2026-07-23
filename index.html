@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cell Comparison Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root{
+    --bg:#0A0F14;
+    --panel:#121922;
+    --panel-alt:#17202B;
+    --border:#223041;
+    --text:#EAF0F5;
+    --muted:#7E8FA0;
+    --accent:#C8FF4D;
+    --accent-dim:#8FB83A;
+    --amber:#FF9F43;
+    --red:#FF5470;
+    --blue:#5FB4FF;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 90% -10%, rgba(200,255,77,0.05), transparent),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .wrap{max-width:1240px; margin:0 auto; padding:0 24px;}
+
+  /* ---- Top bar ---- */
+  .topbar{
+    border-bottom:1px solid var(--border);
+    padding:22px 0;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
+  }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand-mark{
+    width:34px; height:34px; border-radius:6px;
+    background:linear-gradient(145deg, var(--accent), var(--accent-dim));
+    position:relative;
+  }
+  .brand-mark::after{
+    content:''; position:absolute; top:-5px; left:11px; width:12px; height:5px;
+    background:var(--accent-dim); border-radius:2px 2px 0 0;
+  }
+  .brand h1{font-family:'Sora',sans-serif; font-size:19px; font-weight:700; letter-spacing:-0.01em;}
+  .brand span{display:block; font-size:11.5px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:2px;}
+
+  .toggle{
+    display:flex; background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:4px;
+  }
+  .toggle button{
+    background:transparent; border:none; color:var(--muted); font-family:'Inter',sans-serif;
+    font-size:13.5px; font-weight:600; padding:9px 18px; border-radius:7px; cursor:pointer;
+    transition:all .15s ease;
+  }
+  .toggle button.active{background:var(--accent); color:#0A0F14;}
+
+  .meta{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted); text-align:right;}
+  .meta b{color:var(--accent);}
+
+  .syncbar{
+    display:flex; align-items:center; gap:10px; padding:10px 14px; margin-top:16px;
+    background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);
+  }
+  .syncbar .dot{width:7px; height:7px; border-radius:50%; background:var(--muted); flex-shrink:0;}
+  .syncbar .dot.live{background:var(--accent); box-shadow:0 0 6px var(--accent);}
+  .syncbar .dot.error{background:var(--red);}
+  .syncbar #syncstatus{flex:1;}
+  .syncbar button{
+    background:transparent; border:1px solid var(--border); color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:11px; padding:5px 12px; border-radius:6px; cursor:pointer;
+  }
+  .syncbar button:hover{border-color:var(--accent-dim);}
+
+  /* ---- Section headers ---- */
+  .section-head{margin:36px 0 18px; display:flex; align-items:baseline; gap:10px;}
+  .section-head .num{font-family:'JetBrains Mono',monospace; color:var(--accent-dim); font-size:13px;}
+  .section-head h2{font-family:'Sora',sans-serif; font-size:16px; font-weight:600;}
+  .section-head .rule{flex:1; height:1px; background:var(--border);}
+
+  /* ---- Views ---- */
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---- Manufacturer cells (management hero) ---- */
+  .cellrow{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px;}
+  .cellcard{
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:16px 14px 14px; position:relative; overflow:hidden;
+  }
+  .cellcard .term{
+    position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+    width:22px; height:6px; background:var(--border); border-radius:2px 2px 0 0;
+  }
+  .cellcard .name{font-family:'Sora',sans-serif; font-weight:700; font-size:13.5px; margin-bottom:2px;}
+  .cellcard .model{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); margin-bottom:12px; min-height:24px; line-height:1.3;}
+  .gauge{height:74px; background:#0A0F14; border:1px solid var(--border); border-radius:6px; position:relative; overflow:hidden; margin-bottom:10px;}
+  .gauge-fill{position:absolute; bottom:0; left:0; right:0; background:linear-gradient(180deg, var(--accent), var(--accent-dim)); transition:height .8s ease;}
+  .gauge-label{position:absolute; top:6px; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--muted); letter-spacing:.04em;}
+  .score{position:absolute; bottom:6px; left:0; right:0; text-align:center; font-family:'Sora',sans-serif; font-weight:800; font-size:15px; color:#0A0F14;}
+  .stat-mini{display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); padding:3px 0;}
+  .stat-mini b{color:var(--text); font-weight:600;}
+
+  /* ---- Chart panels ---- */
+  .chartgrid{display:grid; grid-template-columns:1.1fr 1fr; gap:16px;}
+  @media (max-width:900px){.chartgrid{grid-template-columns:1fr;}}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:18px;}
+  .panel h3{font-family:'Sora',sans-serif; font-size:13px; font-weight:600; margin-bottom:14px; color:var(--text);}
+  .panel h3 span{color:var(--muted); font-weight:400; font-size:11.5px;}
+  .panel canvas{max-height:280px;}
+
+  /* ---- Insight strip ---- */
+  .insights{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px;}
+  @media (max-width:800px){.insights{grid-template-columns:1fr;}}
+  .insight{background:var(--panel-alt); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:8px; padding:14px 16px;}
+  .insight .tag{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent); letter-spacing:.05em; margin-bottom:6px;}
+  .insight p{font-size:12.5px; line-height:1.5; color:#CBD5E1;}
+
+  /* ---- Technical view ---- */
+  .cattabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+  .cattabs button{
+    background:var(--panel); border:1px solid var(--border); color:var(--muted);
+    font-family:'JetBrains Mono',monospace; font-size:11px; padding:7px 13px; border-radius:20px; cursor:pointer;
+  }
+  .cattabs button.active{background:rgba(200,255,77,0.12); border-color:var(--accent-dim); color:var(--accent);}
+
+  .searchbar{
+    display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--border);
+    border-radius:8px; padding:9px 12px; margin-bottom:16px; max-width:340px;
+  }
+  .searchbar input{background:transparent; border:none; outline:none; color:var(--text); font-family:'Inter',sans-serif; font-size:13px; width:100%;}
+  .searchbar svg{flex-shrink:0;}
+
+  table{width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+  thead th{
+    background:var(--panel-alt); text-align:left; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    color:var(--muted); text-transform:uppercase; letter-spacing:.04em; padding:11px 12px; border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  tbody td{padding:11px 12px; font-size:12.5px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.45;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(255,255,255,0.02);}
+  td.param{font-weight:600; color:var(--text);}
+  td.cat{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent-dim);}
+  td.val{font-family:'JetBrains Mono',monospace; font-size:12px; color:#D7E3EE; white-space:pre-line;}
+  td.remark{color:var(--amber); font-size:11.5px; max-width:220px;}
+  .unit{color:var(--muted); font-size:10px;}
+
+  .mrow{display:flex; align-items:center; gap:14px; padding:9px 0;}
+  .mrow:not(:last-child){border-bottom:1px solid var(--border);}
+  .mrow .mlabel{width:190px; flex-shrink:0; font-size:12.5px; font-weight:600;}
+  .mrow .mreason{flex:1; font-size:11.5px; color:var(--muted); line-height:1.4;}
+  .mrow .mbar-wrap{width:160px; flex-shrink:0; height:8px; background:#0A0F14; border:1px solid var(--border); border-radius:4px; overflow:hidden;}
+  .mrow .mbar{height:100%; background:linear-gradient(90deg, var(--accent-dim), var(--accent));}
+  .mrow .mpct{width:38px; flex-shrink:0; font-family:'JetBrains Mono',monospace; font-size:12px; text-align:right; color:var(--accent);}
+  .mrow.dropped .mpct{color:var(--muted);}
+  .mrow.dropped .mbar{background:#2A3746;}
+
+  footer{margin-top:50px; padding-top:20px; border-top:1px solid var(--border); font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <h1>Cell Comparison Dashboard</h1>
+        <span>314Ah LFP Prismatic &middot; 6 Suppliers &middot; 20 Parameters</span>
+      </div>
+    </div>
+    <div class="toggle">
+      <button id="btn-mgmt" class="active" onclick="setView('mgmt')">Management</button>
+      <button id="btn-tech" onclick="setView('tech')">Technical</button>
+    </div>
+    <div class="meta">SOURCE FILE<br><b>Cell_Comparision_Sheet.xlsx</b></div>
+  </div>
+
+  <div class="syncbar" id="syncbar">
+    <span class="dot" id="syncdot"></span>
+    <span id="syncstatus">Not connected — showing bundled snapshot</span>
+    <button id="refreshbtn" onclick="loadData(true)">Refresh now</button>
+  </div>
+
+  <!-- =============== MANAGEMENT VIEW =============== -->
+  <div id="view-mgmt" class="view active">
+
+    <div class="section-head"><span class="num">01</span><h2>Supplier scorecard</h2><div class="rule"></div></div>
+    <div class="cellrow" id="cellrow"></div>
+
+    <div class="section-head"><span class="num">02</span><h2>Head-to-head</h2><div class="rule"></div></div>
+    <div class="chartgrid">
+      <div class="panel">
+        <h3>Composite performance <span>normalized, higher = better</span></h3>
+        <canvas id="radarChart"></canvas>
+      </div>
+      <div class="panel">
+        <h3>Certifications on file <span>count per supplier</span></h3>
+        <canvas id="certChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section-head"><span class="num">03</span><h2>Scoring basis <span style="font-weight:400; color:var(--muted); font-size:11.5px;">&mdash; weighted for stationary BESS procurement</span></h2><div class="rule"></div></div>
+    <div class="panel" id="methodology"></div>
+
+    <div class="section-head"><span class="num">04</span><h2>Key takeaways</h2><div class="rule"></div></div>
+    <div class="insights" id="insights"></div>
+  </div>
+
+  <!-- =============== TECHNICAL VIEW =============== -->
+  <div id="view-tech" class="view">
+    <div class="section-head"><span class="num">01</span><h2>Full parameter set</h2><div class="rule"></div></div>
+
+    <div class="searchbar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7E8FA0" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="searchbox" placeholder="Search parameter, value, or remark…" oninput="renderTable()">
+    </div>
+
+    <div class="cattabs" id="cattabs"></div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr id="thead-row"></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <span id="footer-source">Static snapshot &mdash; rebuilt from the uploaded workbook, not connected to a live file.</span>
+    <span id="footer-counts">6 suppliers &middot; 20 parameters &middot; 9 categories</span>
+  </footer>
+</div>
+
+<script>
+/* =========================================================================
+   LIVE DATA CONFIG
+   Paste your published Google Sheet CSV URL below to make this dashboard
+   live. In Google Sheets: File -> Share -> Publish to web -> select the
+   "Cell" sheet -> format CSV -> Publish -> copy the URL here.
+   Leave blank to use the bundled fallback snapshot below.
+   ========================================================================= */
+const CONFIG = {
+  CSV_URL: "",              // e.g. "https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv"
+  AUTO_REFRESH_MINUTES: 5,  // set to 0 to disable auto-refresh
+};
+
+/* ---- Bundled fallback snapshot (used until CONFIG.CSV_URL is set) ---- */
+const FALLBACK_MFRS = ["COSPOWER","EVE","HITHIUM","YOUNGY ENERGY","GREAT POWER","CORNEX"];
+const FALLBACK_ROWS = [
+{cat:"Commercial",param:"Manufacturer / Model",unit:"-",v:["COSPOWER / FP71173207A-314Ah","MB31","LFP71173207","RBA4F1","GSP71173204F","PF173 - 314A"],remark:""},
+{cat:"General",param:"Cell Chemistry",unit:"-",v:["LFP","LFP","LFP","LFP","LFP","LFP"],remark:""},
+{cat:"General",param:"Cell Format",unit:"-",v:["Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic"],remark:""},
+{cat:"Electrical",param:"Nominal Voltage",unit:"V",v:["3.2","3.2","3.2","3.2","3.2","3.2"],remark:""},
+{cat:"Electrical",param:"Rated Capacity",unit:"Ah",v:["314","314","314","314","314","314"],remark:""},
+{cat:"Electrical",param:"Energy",unit:"Wh",v:["1004.8","1004.8","1004.8","1004.8","1004.8","1004.8"],remark:""},
+{cat:"Electrical",param:"Charge Cutoff Voltage",unit:"V",v:["3.65","3.65","3.65","3.65","3.65","3.65"],remark:""},
+{cat:"Electrical",param:"Discharge Cutoff Voltage",unit:"V",v:["2.5","2.5","2.5","2.5","2.5","2.5"],remark:""},
+{cat:"Energy Density",param:"Gravimetric Energy Density",unit:"Wh/kg",v:["179.43","179.43","179.43","182.69","182.69","179.43"],remark:""},
+{cat:"Energy Density",param:"Volumetric Energy Density",unit:"Wh/L",v:["390.97","389.46","385.00","389.46","390.97","—"],remark:""},
+{cat:"Power",param:"Standard Charge/Discharge Current",unit:"C rate",v:["0.5","0.5","0.5","0.5","0.5","0.5"],remark:""},
+{cat:"Power",param:"Internal Resistance (ACIR)",unit:"mΩ",v:["0.17 ± 0.05","0.18 ± 0.05","0.20 ± 0.05","0.195 ± 0.035","0.2 ± 0.05","0.19 ± 0.05"],remark:""},
+{cat:"Life Time",param:"Cycle Life",unit:"cycles",v:["9000 cycle at 25±2℃ 70%SOH","8000 cycle at 25±2℃ 70%SOH",">11000 cycle at 0.5P/0.5P 25±2℃ 70%SOH","≥9000 cycle at 25±2℃ 70%SOH","≥8000 cycle at 25±2℃ 70%SOH","6000cls@80%SOH 8000cls@70%SOH 25±2℃"],remark:""},
+{cat:"Thermal",param:"Charge Operating Temp",unit:"°C",v:["5 ~ 60","0 ~ 60","0 ~ 60","0 ~ 55","0 ~ 60","0 ~ 60"],remark:"EVE and Great Power provide a similar range to HITHIUM."},
+{cat:"Thermal",param:"Discharge Operating Temp",unit:"°C",v:["-20 ~ 60","-30 ~ 60","-30 ~ 60","-20 ~ 55","-30 ~ 60","-20 ~ 60"],remark:""},
+{cat:"Thermal",param:"Storage Temperature",unit:"°C",v:["-20 ~ 35","-20 ~ 35","-20 ~ 35","5 ~ 25","-10 ~ 30","-10 ~ 30, ≤75% RH, no condensation"],remark:""},
+{cat:"Physical",param:"Dimensions (W×H×T)",unit:"mm",v:["173.8×207.2×71.5 ±0.5","173.7×207.2×71.70 (±0.5/±0.5/±0.8)","174.70×204.47×71.70 ±0.5","174.3×207.1×71.6 ±0.5","173.90×206.50×71.70 (±0.8/±0.8/±0.5)","174.4×207.2×71.70 (±0.85/±0.5/±0.5)"],remark:"CP, EVE, YE and GP are ~3mm taller than HITHIUM; minor width/thickness variance across all."},
+{cat:"Physical",param:"Weight",unit:"kg",v:["5.60 ± 0.3","5.60 ± 0.3","5.60 ± 0.3","5.5 ± 0.3","5.50 ± 0.15","5.60 ± 0.084"],remark:"Weight is effectively equal across all suppliers."},
+{cat:"Compliance",param:"Certifications",unit:"-",v:["UN38.3, UL1973, UL9540A, IEC62619","GB/T 36276-2018","GB/T 36276-2018, IEC62619-2022, UL1973-2022, UL9540-2019, UN38.3-2019","GB/T 36276-2018, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3"],remark:"EVE lists only one certification. GP matches HITHIUM's set. UL9540A/UL1973/IEC62619 still needed from YOUNGY; GB/T 36276-2018 detail still needed from COSPOWER."},
+];
+
+let MFRS = FALLBACK_MFRS;
+let ROWS = FALLBACK_ROWS;
+let dataSource = "fallback";
+let charts = {};
+
+const PALETTE = ["#C8FF4D","#5FB4FF","#FF9F43","#FF5470","#8B7FFF","#4DE3C8","#FFD166","#EF476F","#06D6A0","#118AB2"];
+function colorFor(i){
+  if(i < PALETTE.length) return PALETTE[i];
+  const hue = (i * 47) % 360;
+  return `hsl(${hue},70%,62%)`;
+}
+
+/* =========================================================================
+   CSV parsing -> ROWS/MFRS, tolerant of new columns (suppliers) or
+   new rows (parameters) added to the source sheet.
+   ========================================================================= */
+function parseSheet(csvText){
+  const parsed = Papa.parse(csvText.trim(), { skipEmptyLines:true });
+  const rows = parsed.data;
+  const norm = s => (s||"").toString().trim();
+  const lower = s => norm(s).toLowerCase();
+
+  const headerIdx = rows.findIndex(r => r.some(c=>lower(c)==='category') && r.some(c=>lower(c)==='parameter'));
+  if(headerIdx === -1) throw new Error("Couldn't find a header row with 'Category' and 'Parameter' columns.");
+  const header = rows[headerIdx];
+
+  const catI = header.findIndex(c=>lower(c)==='category');
+  const paramI = header.findIndex(c=>lower(c)==='parameter');
+  const unitI = header.findIndex(c=>lower(c)==='unit');
+  const remarksI = header.findIndex(c=>lower(c)==='remarks');
+
+  const excluded = new Set([catI,paramI,unitI,remarksI].filter(i=>i>-1));
+  const lastCol = remarksI > -1 ? remarksI : header.length;
+  const mfrCols = [];
+  for(let i=0;i<header.length;i++){
+    if(excluded.has(i)) continue;
+    if(i < paramI) continue;
+    if(i >= lastCol) continue;
+    if(norm(header[i])==='' || lower(header[i])==='sr no' ) continue;
+    mfrCols.push(i);
+  }
+  const mfrs = mfrCols.map(i=>norm(header[i]));
+
+  const outRows = [];
+  for(let r=headerIdx+1; r<rows.length; r++){
+    const row = rows[r];
+    const param = norm(row[paramI]);
+    if(!param) continue;
+    outRows.push({
+      cat: norm(row[catI]) || "General",
+      param,
+      unit: unitI>-1 ? (norm(row[unitI])||"-") : "-",
+      v: mfrCols.map(i => norm(row[i])),
+      remark: remarksI>-1 ? norm(row[remarksI]) : "",
+    });
+  }
+  if(!outRows.length) throw new Error("Header row found but no data rows after it.");
+  return { mfrs, rows: outRows };
+}
+
+/* =========================================================================
+   Scoring — finds the relevant parameter row by keyword, so it keeps
+   working even if row order changes or new rows are inserted.
+   ========================================================================= */
+function findRow(keyword){
+  return ROWS.find(r => r.param.toLowerCase().includes(keyword));
+}
+function numsIn(str){
+  return (str.match(/[\d,]+(?:\.\d+)?/g)||[]).map(s=>parseFloat(s.replace(/,/g,'')));
+}
+function cycleLifeOf(str){
+  const big = numsIn(str).filter(n=>n>=500);
+  return big.length ? Math.max(...big) : null;
+}
+function firstFloat(str){
+  const m = str.match(/[\d.]+/);
+  return m ? parseFloat(m[0]) : null;
+}
+function certCountOf(str){
+  return str.split(/[\n,]/).map(s=>s.trim()).filter(s=>s.length>2 && s!=='-' && s!=='—').length;
+}
+
+function computeScoring(){
+  const cycleRow = findRow('cycle life');
+  const certRow = findRow('certificat');
+  const irRow = findRow('internal resistance');
+  const gravRow = findRow('gravimetric');
+  const volRow = findRow('volumetric');
+  const modelRow = ROWS.find(r=>r.param.toLowerCase().includes('manufacturer') || r.param.toLowerCase().includes('model')) || ROWS[0];
+
+  const CYCLE = MFRS.map((_,i)=> cycleRow ? cycleLifeOf(cycleRow.v[i]||'') : null);
+  const CERT = MFRS.map((_,i)=> certRow ? certCountOf(certRow.v[i]||'') : 0);
+  const IR = MFRS.map((_,i)=> irRow ? firstFloat(irRow.v[i]||'') : null);
+  const GRAV = MFRS.map((_,i)=> gravRow ? firstFloat(gravRow.v[i]||'') : null);
+  const VOL = MFRS.map((_,i)=> volRow ? firstFloat(volRow.v[i]||'') : null);
+  const MODEL = MFRS.map((_,i)=> modelRow ? modelRow.v[i] : "");
+
+  function norm(arr, invert=false){
+    const vals = arr.filter(v=>v!==null && !isNaN(v));
+    if(!vals.length) return arr.map(()=>0);
+    const min = Math.min(...vals), max = Math.max(...vals);
+    return arr.map(v=>{
+      if(v===null || isNaN(v)) return 0;
+      if(max===min) return 100;
+      const s = (v-min)/(max-min)*100;
+      return invert ? 100-s : s;
+    });
+  }
+  const nCycle = norm(CYCLE);
+  const nCert = norm(CERT);
+  const nIR = norm(IR, true);
+  const nGrav = norm(GRAV);
+  const nVol = norm(VOL);
+
+  const WEIGHTS = { cycle:0.40, cert:0.25, ir:0.15, vol:0.10, grav:0.10 };
+  const COMPOSITE = MFRS.map((_,i)=> Math.round(
+    nCycle[i]*WEIGHTS.cycle + nCert[i]*WEIGHTS.cert + nIR[i]*WEIGHTS.ir + nVol[i]*WEIGHTS.vol + nGrav[i]*WEIGHTS.grav
+  ));
+
+  return { CYCLE, CERT, IR, GRAV, VOL, MODEL, nCycle, nCert, nIR, nGrav, nVol, COMPOSITE, WEIGHTS };
+}
+
+/* =========================================================================
+   Rendering
+   ========================================================================= */
+function renderAll(){
+  const S = computeScoring();
+
+  // ---- Manufacturer cards ----
+  const cellrow = document.getElementById('cellrow');
+  cellrow.innerHTML = '';
+  MFRS.forEach((m,i)=>{
+    const div = document.createElement('div');
+    div.className='cellcard';
+    div.innerHTML = `
+      <div class="term"></div>
+      <div class="name">${m}</div>
+      <div class="model">${S.MODEL[i]||''}</div>
+      <div class="gauge">
+        <div class="gauge-label">SCORE</div>
+        <div class="gauge-fill" style="height:0%"></div>
+        <div class="score">${S.COMPOSITE[i]}</div>
+      </div>
+      <div class="stat-mini"><span>Cycle life</span><b>${S.CYCLE[i]!==null?S.CYCLE[i].toLocaleString():'—'}</b></div>
+      <div class="stat-mini"><span>Wh/kg</span><b>${S.GRAV[i]!==null?S.GRAV[i]:'—'}</b></div>
+      <div class="stat-mini"><span>Certs</span><b>${S.CERT[i]}</b></div>
+    `;
+    cellrow.appendChild(div);
+    setTimeout(()=>{ div.querySelector('.gauge-fill').style.height = S.COMPOSITE[i]+'%'; }, 120+i*70);
+  });
+
+  // ---- Radar chart ----
+  if(charts.radar) charts.radar.destroy();
+  charts.radar = new Chart(document.getElementById('radarChart'), {
+    type:'radar',
+    data:{
+      labels:['Gravimetric ED','Volumetric ED','Cycle Life','Low Resistance','Certifications'],
+      datasets: MFRS.map((m,i)=>({
+        label:m,
+        data:[S.nGrav[i],S.nVol[i],S.nCycle[i],S.nIR[i],S.nCert[i]],
+        borderColor:colorFor(i),
+        backgroundColor:colorFor(i)+'18',
+        borderWidth:2,
+        pointRadius:2,
+      }))
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{ position:'bottom', labels:{ color:'#7E8FA0', font:{size:10, family:'JetBrains Mono'}, boxWidth:10, padding:10 } } },
+      scales:{ r:{
+        angleLines:{color:'#223041'}, grid:{color:'#223041'},
+        pointLabels:{color:'#B9C6D4', font:{size:10}},
+        ticks:{display:false, backdropColor:'transparent'},
+        suggestedMin:0, suggestedMax:100
+      }}
+    }
+  });
+
+  // ---- Certifications bar chart ----
+  if(charts.cert) charts.cert.destroy();
+  charts.cert = new Chart(document.getElementById('certChart'), {
+    type:'bar',
+    data:{ labels:MFRS, datasets:[{ data:S.CERT, backgroundColor:MFRS.map((_,i)=>colorFor(i)), borderRadius:6, maxBarThickness:38 }] },
+    options:{
+      responsive:true,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ ticks:{color:'#7E8FA0', font:{size:9.5, family:'JetBrains Mono'}}, grid:{display:false} },
+        y:{ ticks:{color:'#7E8FA0', font:{size:10}, stepSize:1}, grid:{color:'#1C2734'}, beginAtZero:true }
+      }
+    }
+  });
+
+  // ---- Methodology panel ----
+  const methodRows = [
+    {label:"Cycle Life", pct:40, reason:"Drives LCOE, warranty length and augmentation schedule over project life."},
+    {label:"Certifications", pct:25, reason:"UL9540A / UL1973 / IEC62619 / UN38.3 often gate financing, insurance and grid-code approval."},
+    {label:"Internal Resistance", pct:15, reason:"Round-trip efficiency and heat generation — affects losses and thermal design."},
+    {label:"Volumetric Energy Density", pct:10, reason:"Container/site footprint — secondary for stationary storage."},
+    {label:"Gravimetric Energy Density", pct:10, reason:"Minor structural and logistics factor."},
+    {label:"Weight", pct:0, reason:"Dropped — spread typically sits inside suppliers' own tolerance, not a real differentiator.", dropped:true},
+  ];
+  const methodDiv = document.getElementById('methodology');
+  methodDiv.innerHTML = '';
+  methodRows.forEach(r=>{
+    const row = document.createElement('div');
+    row.className = 'mrow' + (r.dropped ? ' dropped' : '');
+    row.innerHTML = `<div class="mlabel">${r.label}</div><div class="mbar-wrap"><div class="mbar" style="width:${r.pct}%"></div></div><div class="mpct">${r.pct}%</div><div class="mreason">${r.reason}</div>`;
+    methodDiv.appendChild(row);
+  });
+
+  // ---- Insights (auto-generated from current data) ----
+  const order = MFRS.map((m,i)=>({m,score:S.COMPOSITE[i],cert:S.CERT[i],cycle:S.CYCLE[i]})).sort((a,b)=>b.score-a.score);
+  const top = order[0], bottom = order[order.length-1];
+  const insDiv = document.getElementById('insights');
+  const insights = [
+    {tag:"TOP RANKED", text:`${top.m} leads the weighted score (${top.score}) — cycle life ${top.cycle?top.cycle.toLocaleString():'—'}, ${top.cert} certification${top.cert===1?'':'s'} on file.`},
+    {tag:"LOWEST RANKED", text:`${bottom.m} ranks last (${bottom.score}) — cycle life ${bottom.cycle?bottom.cycle.toLocaleString():'—'}, ${bottom.cert} certification${bottom.cert===1?'':'s'} on file.`},
+    {tag:"DATA SOURCE", text: dataSource==='live' ? `Loaded live from the connected sheet — ${MFRS.length} suppliers, ${ROWS.length} parameters.` : "Showing the bundled snapshot. Connect CONFIG.CSV_URL at the top of the script to go live."},
+  ];
+  insDiv.innerHTML = '';
+  insights.forEach(x=>{
+    const d = document.createElement('div'); d.className='insight';
+    d.innerHTML = `<div class="tag">${x.tag}</div><p>${x.text}</p>`;
+    insDiv.appendChild(d);
+  });
+
+  // ---- Technical table: header + category tabs + rows ----
+  const theadRow = document.getElementById('thead-row');
+  theadRow.innerHTML = `
+    <th style="width:26px;">#</th>
+    <th style="width:110px;">Category</th>
+    <th style="width:190px;">Parameter</th>
+    ${MFRS.map(m=>`<th>${m}</th>`).join('')}
+    <th style="width:220px;">Remarks</th>
+  `;
+
+  const CATS = ["All", ...new Set(ROWS.map(r=>r.cat))];
+  const cattabs = document.getElementById('cattabs');
+  cattabs.innerHTML = '';
+  CATS.forEach(c=>{
+    const b = document.createElement('button');
+    b.textContent = c;
+    if(c===activeCat) b.classList.add('active');
+    b.onclick = ()=>{ activeCat = c; [...cattabs.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderTable(); };
+    cattabs.appendChild(b);
+  });
+
+  renderTable();
+
+  // ---- Footer ----
+  document.getElementById('footer-counts').textContent =
+    `${MFRS.length} suppliers · ${ROWS.length} parameters · ${new Set(ROWS.map(r=>r.cat)).size} categories`;
+  document.getElementById('footer-source').textContent = dataSource==='live'
+    ? 'Live — synced from the connected Google Sheet.'
+    : 'Static snapshot — connect a live sheet via CONFIG.CSV_URL to auto-update.';
+}
+
+let activeCat = "All";
+function renderTable(){
+  const q = (document.getElementById('searchbox').value||'').trim().toLowerCase();
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  ROWS.filter((r,idx)=>{
+    if(activeCat!=="All" && r.cat!==activeCat) return false;
+    if(!q) return true;
+    const hay = (r.param+' '+r.cat+' '+r.v.join(' ')+' '+r.remark).toLowerCase();
+    return hay.includes(q);
+  }).forEach((r)=>{
+    const n = ROWS.indexOf(r)+1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="val">${n}</td>
+      <td class="cat">${r.cat}</td>
+      <td class="param">${r.param}${r.unit!=="-"?` <span class="unit">(${r.unit})</span>`:""}</td>
+      ${r.v.map(v=>`<td class="val">${v||'—'}</td>`).join('')}
+      <td class="remark">${r.remark||'—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ---- View toggle ---- */
+function setView(v){
+  document.getElementById('view-mgmt').classList.toggle('active', v==='mgmt');
+  document.getElementById('view-tech').classList.toggle('active', v==='tech');
+  document.getElementById('btn-mgmt').classList.toggle('active', v==='mgmt');
+  document.getElementById('btn-tech').classList.toggle('active', v==='tech');
+}
+
+/* =========================================================================
+   Load — from CONFIG.CSV_URL if set, else fallback snapshot.
+   ========================================================================= */
+function setSync(state, msg){
+  const dot = document.getElementById('syncdot');
+  const status = document.getElementById('syncstatus');
+  dot.className = 'dot' + (state==='live' ? ' live' : state==='error' ? ' error' : '');
+  status.textContent = msg;
+}
+
+async function loadData(manual){
+  if(!CONFIG.CSV_URL){
+    dataSource = 'fallback';
+    setSync('idle', 'Not connected — showing bundled snapshot. Set CONFIG.CSV_URL to go live.');
+    renderAll();
+    return;
+  }
+  setSync('idle', manual ? 'Refreshing…' : 'Loading…');
+  try{
+    const bust = (CONFIG.CSV_URL.includes('?') ? '&' : '?') + 'cb=' + Date.now();
+    const res = await fetch(CONFIG.CSV_URL + bust, { cache:'no-store' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const { mfrs, rows } = parseSheet(text);
+    MFRS = mfrs; ROWS = rows; dataSource = 'live';
+    const now = new Date();
+    setSync('live', `Live — last synced ${now.toLocaleTimeString()}`);
+    renderAll();
+  }catch(err){
+    dataSource = (MFRS && MFRS.length) ? dataSource : 'fallback';
+    setSync('error', `Couldn't load live data (${err.message}) — showing last known data.`);
+    renderAll();
+  }
+}
+
+loadData(false);
+if(CONFIG.AUTO_REFRESH_MINUTES > 0){
+  setInterval(()=>loadData(false), CONFIG.AUTO_REFRESH_MINUTES*60*1000);
+}
+</script>
+</body>
+</html>
