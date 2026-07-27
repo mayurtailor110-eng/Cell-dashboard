@@ -108,16 +108,22 @@
   .mfr-facts .fk{font-family:'JetBrains Mono',monospace; font-size:8.5px; letter-spacing:.04em; color:var(--muted);}
   .mfr-facts .fv{font-family:'Sora',sans-serif; font-weight:700; font-size:13px; color:var(--text); line-height:1.1;}
 
-  /* ---- Open action item cards ---- */
+  /* ---- Supplier status cards ---- */
   .actioncard{display:flex; flex-direction:column;}
-  .action-count{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.03em; color:var(--muted); margin-bottom:12px;}
+  .action-count{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.03em; color:var(--muted); margin-bottom:12px; text-transform:uppercase;}
   .action-count.has-open{color:var(--amber);}
+  .action-count.all-done{color:#34D399;}
   .action-line{border-top:1px solid var(--border); padding:8px 0 7px; display:flex; flex-direction:column; gap:3px;}
   .action-line .al{font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted);}
-  .action-line .av{font-size:11.5px; line-height:1.4; color:var(--text); white-space:pre-line;}
+  .action-line .av{font-size:11.5px; line-height:1.4; color:var(--text); white-space:pre-line; display:flex; align-items:flex-start; gap:6px;}
   .action-line.clear .av{color:#4b5563;}
-  .action-line.open{border-left:2px solid var(--amber); padding-left:8px; margin-left:-2px;}
-  .action-line.open .av{color:#E7D9B0;}
+  .action-line.pending{border-left:2px solid var(--amber); padding-left:8px; margin-left:-2px;}
+  .action-line.pending .av{color:#E7D9B0;}
+  .action-line.received{border-left:2px solid #34D399; padding-left:8px; margin-left:-2px;}
+  .action-line.received .av{color:#B8ECD6;}
+  .badge{flex:none; width:15px; height:15px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; margin-top:1px; line-height:1;}
+  .badge.ok{background:rgba(52,211,153,.16); color:#34D399;}
+  .badge.wait{background:rgba(255,159,67,.16); color:var(--amber); font-size:7px;}
   .gauge{height:74px; background:#0A0F14; border:1px solid var(--border); border-radius:6px; position:relative; overflow:hidden; margin-bottom:10px;}
   .gauge-fill{position:absolute; bottom:0; left:0; right:0; background:linear-gradient(180deg, var(--accent), var(--accent-dim)); transition:height .8s ease;}
   .gauge-label{position:absolute; top:6px; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--muted); letter-spacing:.04em;}
@@ -234,18 +240,15 @@
       </div>
     </div>
 
-    <div class="section-head"><span class="num">03</span><h2>Scoring basis <span style="font-weight:400; color:var(--muted); font-size:11.5px;">&mdash; weighted for stationary BESS procurement</span></h2><div class="rule"></div></div>
-    <div class="panel" id="methodology"></div>
-
-    <div class="section-head"><span class="num">04</span><h2>Open action items <span style="font-weight:400; color:var(--muted); font-size:11.5px;">&mdash; Advait, per supplier</span></h2><div class="rule"></div></div>
+    <div class="section-head"><span class="num">03</span><h2>Supplier status <span style="font-weight:400; color:var(--muted); font-size:11.5px;">&mdash; Advait, per supplier</span></h2><div class="rule"></div></div>
     <div class="cellrow" id="actionrow"></div>
     <p style="font-size:11px;color:#6b7280;line-height:1.5;margin:10px 2px 0">
-      Outstanding items to close with each supplier before award, split by
-      Legal, Commercial and Technical. A dash means no open item is recorded
-      for that supplier in that category.
+      Engagement status with each supplier, split by Legal, Commercial and
+      Technical. Commercial shows the quoted cell price where received; Technical
+      shows whether datasheets are in hand. A dash means nothing recorded yet.
     </p>
 
-    <div class="section-head"><span class="num">05</span><h2>Key takeaways</h2><div class="rule"></div></div>
+    <div class="section-head"><span class="num">04</span><h2>Key takeaways</h2><div class="rule"></div></div>
     <div class="insights" id="insights"></div>
   </div>
 
@@ -289,34 +292,35 @@ const CONFIG = {
 };
 
 /* ---- Bundled fallback snapshot (used until CONFIG.CSV_URL is set) ---- */
-const FALLBACK_MFRS = ["COSPOWER","EVE","HITHIUM","YOUNGY ENERGY","GREAT POWER","CORNEX","TIANNENG ENERGY"];
+const FALLBACK_MFRS = ["COSPOWER","EVE","HITHIUM","YOUNGY ENERGY","GREAT POWER","CORNEX","TIANNENG ENERGY","REPT","NETC"];
 const FALLBACK_ROWS = [
-{cat:"Commercial",param:"Manufacturer / Model",unit:"-",v:["COSPOWER / FP71173207A-314Ah","MB31","LFP71173207","RBA4F1","GSP71173204F","PF173 - 314A","TNS71173207B314"],remark:""},
-{cat:"Commercial",param:"Manufacturer Plant Capacity",unit:"GWh",v:["—","60","70","—","—","100","—"],remark:"Company-wide stated annual capacity. EVE: 60 GWh dedicated BESS plant (Jingmen). HITHIUM: ~70 GWh. CORNEX: 100+ GWh across Hubei bases. COSPOWER / YOUNGY / Tianneng figures still to be confirmed with suppliers."},
-{cat:"Commercial",param:"Company Age",unit:"years",v:["—","25","7","—","25","5","—"],remark:"Years since founding (as of 2026). EVE & Great Power: 2001. HITHIUM: 2019. CORNEX: 2021. COSPOWER / YOUNGY / Tianneng founding dates still to be confirmed."},
-{cat:"General",param:"Cell Chemistry",unit:"-",v:["LFP","LFP","LFP","LFP","LFP","LFP","LFP"],remark:""},
-{cat:"General",param:"Cell Format",unit:"-",v:["Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic"],remark:""},
-{cat:"Electrical",param:"Nominal Voltage",unit:"V",v:["3.2","3.2","3.2","3.2","3.2","3.2","3.2"],remark:""},
-{cat:"Electrical",param:"Rated Capacity",unit:"Ah",v:["314","314","314","314","314","314","314"],remark:""},
-{cat:"Electrical",param:"Energy",unit:"Wh",v:["1004.8","1004.8","1004.8","1004.8","1004.8","1004.8","1004.8"],remark:""},
-{cat:"Electrical",param:"Charge Cutoff Voltage",unit:"V",v:["3.65","3.65","3.65","3.65","3.65","3.65","3.65"],remark:""},
-{cat:"Electrical",param:"Discharge Cutoff Voltage",unit:"V",v:["2.5","2.5","2.5","2.5","2.5","2.5","2.5"],remark:""},
-{cat:"Electrical",param:"Cell RTE (Round-Trip Efficiency)",unit:"%",v:["—","—","—","—","—","96.5","—"],remark:"Round-trip DC energy efficiency. CORNEX states 96.5% for its large-format cell. Most cell datasheets do not publish RTE — request from each supplier."},
-{cat:"Energy Density",param:"Gravimetric Energy Density",unit:"Wh/kg",v:["179.43","179.43","179.43","182.69","182.69","179.43","174.75"],remark:""},
-{cat:"Energy Density",param:"Volumetric Energy Density",unit:"Wh/L",v:["390.97","389.46","385.00","389.46","390.97","389.46","386.46"],remark:""},
-{cat:"Power",param:"Standard Charge/Discharge Current",unit:"C rate",v:["0.5","0.5","0.5","0.5","0.5","0.5","0.5"],remark:""},
-{cat:"Power",param:"Internal Resistance (ACIR)",unit:"mΩ",v:["0.17 ± 0.05","0.18 ± 0.05","0.20 ± 0.05","0.195 ± 0.035","0.2 ± 0.05","0.19 ± 0.05","≤0.25"],remark:""},
-{cat:"Life Time",param:"Cycle Life",unit:"cycles",v:["9000 cycle at 25±2℃ 70%SOH","8000 cycle at 25±2℃ 70%SOH",">11000 cycle at 0.5P/0.5P 25±2℃ 70%SOH","≥9000 cycle at 25±2℃ 70%SOH","≥8000 cycle at 25±2℃ 70%SOH","6000cls@80%SOH 8000cls@70%SOH 25±2℃","≥8000 cycle at 25±2℃ 70%SOH"],remark:""},
-{cat:"Life Time",param:"Cycle Life given at DoD",unit:"%",v:["100","100","100","100","100","100","100"],remark:"Depth of discharge at which the cycle-life figure was measured. Cell-level cycle life is normally quoted at 100% DoD (full charge/discharge); confirm with each supplier where not explicitly stated."},
-{cat:"Thermal",param:"Charge Operating Temp",unit:"°C",v:["5 ~ 60","0 ~ 60","0 ~ 60","0 ~ 55","0 ~ 60","0 ~ 60","0 ~ 60"],remark:"EVE and Great Power provide a similar range to HITHIUM."},
-{cat:"Thermal",param:"Discharge Operating Temp",unit:"°C",v:["-20 ~ 60","-30 ~ 60","-30 ~ 60","-20 ~ 55","-30 ~ 60","-20 ~ 60","-20 ~ 60"],remark:""},
-{cat:"Thermal",param:"Storage Temperature",unit:"°C",v:["-20 ~ 35","-20 ~ 35","-20 ~ 35","5 ~ 25","-10 ~ 30","-10 ~ 30, ≤75% RH, no condensation","-20 ~ 25"],remark:""},
-{cat:"Physical",param:"Dimensions (W×H×T)",unit:"mm",v:["173.8×207.2×71.5 ±0.5","173.7×207.2×71.70 (±0.5/±0.5/±0.8)","174.70×204.47×71.70 ±0.5","174.3×207.1×71.6 ±0.5","173.90×206.50×71.70 (±0.8/±0.8/±0.5)","174.4×207.2×71.70 (±0.85/±0.5/±0.5)","173.8×207.2×71.70 (±1/±1/±0.8)"],remark:"CP, EVE, YE and GP are ~3mm taller than HITHIUM; minor width/thickness variance across all."},
-{cat:"Physical",param:"Weight",unit:"kg",v:["5.60 ± 0.3","5.60 ± 0.3","5.60 ± 0.3","5.5 ± 0.3","5.50 ± 0.15","5.60 ± 0.084","5.75 ± 0.15"],remark:"Weight is effectively equal across all suppliers."},
-{cat:"Compliance",param:"Certifications",unit:"-",v:["UN38.3, UL1973, UL9540A, IEC62619","GB/T 36276-2018","GB/T 36276-2018, IEC62619-2022, UL1973-2022, UL9540-2019, UN38.3-2019","GB/T 36276-2018, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3","GB/T 36276-2023"],remark:"EVE lists only one certification. GP matches HITHIUM's set. UL9540A/UL1973/IEC62619 still needed from YOUNGY; GB/T 36276-2018 detail still needed from COSPOWER; Tianneng lists only GB/T 36276-2023."},
-{cat:"Advait – Open Action Items",param:"Legal",unit:"-",v:["","","","","","",""],remark:""},
-{cat:"Advait – Open Action Items",param:"Commercial",unit:"-",v:["","","","","","",""],remark:""},
-{cat:"Advait – Open Action Items",param:"Technical",unit:"-",v:["","","","","","",""],remark:""},
+{cat:"Commercial",param:"Manufacturer/Model",unit:"-",v:["COSPOWER / FP71173207A-314Ah","MB31","LFP71173207","RBA4F1","GSP71173204F","PF173 - 314A","TNS71173207B314","",""],remark:""},
+{cat:"Commercial",param:"Manufacturer Production Capacity (314Ah)",unit:"GWh",v:["","","","","","","","",""],remark:""},
+{cat:"Commercial",param:"Manufacturer Plant Capacity",unit:"GWh",v:["","","","","","","","",""],remark:""},
+{cat:"Commercial",param:"Company age",unit:"Years",v:["","","","","","","","",""],remark:""},
+{cat:"General",param:"Cell Chemistry",unit:"-",v:["LFP","LFP","LFP","LFP","LFP","LFP","LFP","LFP","LFP"],remark:""},
+{cat:"General",param:"Cell Format",unit:"-",v:["Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic"],remark:""},
+{cat:"Electrical",param:"Nominal Voltage",unit:"V",v:["3.2","3.2","3.2","3.2","3.2","3.2","3.2","3.2","3.2"],remark:""},
+{cat:"Electrical",param:"Rated Capacity",unit:"Ah",v:["314","314","314","314","314","314","314","314","314"],remark:""},
+{cat:"Electrical",param:"Energy",unit:"Wh",v:["1004.8000000000001","1004.8000000000001","1004.8000000000001","1004.8000000000001","1004.8000000000001","1004.8000000000001","1004.8000000000001","1004.8000000000001","1004.8000000000001"],remark:""},
+{cat:"Electrical",param:"Charge Cutoff voltage",unit:"V",v:["3.65","3.65","3.65","3.65","3.65","3.65","3.65","3.65","3.65"],remark:""},
+{cat:"Electrical",param:"Discharge Cutoff voltage",unit:"V",v:["2.5","2.5","2.5","2.5","2.5","2.5","2.5","2.5","2.5"],remark:""},
+{cat:"Electrical",param:"Cell RTE",unit:"%",v:["","","","","","","","","≥ 94.5%"],remark:""},
+{cat:"Energy Density",param:"Gravimetric Energy Density",unit:"Wh/kg",v:["179.43","179.43","179.43","182.69","182.69","179.43","174.75","","179.43"],remark:""},
+{cat:"Energy Density",param:"Volumetric Energy Density",unit:"Wh/L",v:["390.97","389.46","385","389.46","390.97","389.46","386.46","","389.46"],remark:""},
+{cat:"Power",param:"Standard Charge / Discharge Current",unit:"C rate",v:["0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5"],remark:""},
+{cat:"Power",param:"Internal Resistance (ACIR)",unit:"mΩ",v:["0.17 ± 0.05","0.18 ± 0.05","0.20 ± 0.05","0.195 ± 0.035","0.2 ± 0.05","0.19±0.05mΩ","≤0.25 mΩ","","≤0.25 mΩ"],remark:""},
+{cat:"Life time",param:"Cycle Life",unit:"Cycles",v:["9000 cycle at\n25±2℃ \n70%SOH","8000 cycle at\n25±2℃ \n70%SOH","＞11000 cycle at  \n25±2℃\n 70%SOH","≥ 9000 cycle at\n  25±2℃ \n70%SOH","≥ 8000 cycle at\n25±2℃ \n70%SOH","8000 cycle at\n25℃±2℃\n70%SOH","≥ 8000 cycle at\n25±2℃ \n70%SOH","","≥ 8000 cycle at\n25±2℃ \n70%SOH"],remark:""},
+{cat:"Life time",param:"Cycle life given at DoD",unit:"%",v:["","100","","","","","","","100"],remark:""},
+{cat:"Thermal",param:"Charge Operating Temp",unit:"°C",v:["5 ~ 60","0～ 60","0 ～ 60","0 ～ 55","0 ～ 60","0 ～ 60","0 ～ 60","","0 ～ 60"],remark:""},
+{cat:"Thermal",param:"DisCharge Operating Temp",unit:"°C",v:["-20 ~ 60","-30 ～ 60","-30 ～ 60","-20 ～ 55","-30 ～ 60","-20 ～ 60","-20 ～ 60","","-20 ～ 60"],remark:""},
+{cat:"Thermal",param:"Storage temperature",unit:"°C",v:["-20 ~ 35","-20 ～ 35","-20～ 35","5～ 25","-10 ～ 30","-10 ～ 30 @Storage ambient humidity ≤75% RH, no\ncondensation.","-20 ～ 25","","10 ～ 25"],remark:""},
+{cat:"Physical",param:"Dimensions",unit:"mm",v:["W- 173.8±0.5\nH - 207.2±0.5 \nT - 71.5±0.5","W - 173.7±0.5\nH - 207.2±0.5\nT - 71.70±0.8","W-174.70 ± 0.5\nH-204.47 ± 0.5 \nT-71.70 ± 0.5","W-174.3 ± 0.5 \nH- 207.1±0.5 \nT-71.6±0.5","W-173.90 ± 0.8 \nH- 206.50±0.8\nT-71.70±0.5","W-174.4 ± 0.85\nH- 207.2±0.5\nT-71.70±0.5 \nThickness test condition: 27%SOC, pressure of\n300±20kgf","W-173.8± 1\nH- 207.2±1\nT-71.70±0.8 \n(300±20kgf)","","W-173.5±0.8\nH- 207.2±0.8\nT-71.8±0.8 \n(300±20kgf)"],remark:""},
+{cat:"Physical",param:"Weight",unit:"Kg",v:["5.60±0.3","5.60±0.3","5.60±0.3","5.5 ± 0.3","5.50 ± 0.15","5.60 ± 0.084","5.75±0.15","","5.6"],remark:""},
+{cat:"Compliance",param:"Certifications",unit:"-",v:["UN38.3\nUL1973 \nUL9540A \nIEC62619","GB/T 36276-2018\nIEC 62619-2022\nUL 1973-2022\nUL 9540-2019\nUN38.3-2019","GB/T 36276-2018\nIEC 62619-2022\nUL 1973-2022\nUL 9540-2019\nUN38.3-2019","GB/T 36276-2018\nUN 38.3","GB/T36276-2023\nUL9540A\nUL1973\nIEC62619\nUN38.3","GB/T36276-2023\nUL9540A\nUL1973\nIEC62619\nUN38.3","GB/T36276-2023","","GB/T36276-2023\nUN38.3"],remark:""},
+{cat:"Supplier Status",param:"Legal",unit:"-",v:["","","","","","","","",""],remark:""},
+{cat:"Supplier Status",param:"Commercial",unit:"-",v:["57USD/KWh","53.5USD/KWh","","","","51.2USD/KWh","","54.5USD/KWh",""],remark:""},
+{cat:"Supplier Status",param:"Technical",unit:"-",v:["Pending - Technical Docs","Received - Technical Docs","Received - Technical Docs","Pending - Technical Docs","Pending - Technical Docs","Received - Technical Docs","Pending - Technical Docs","Pending - Technical Docs","Pending - Technical Docs"],remark:""},
 ];
 
 let MFRS = FALLBACK_MFRS;
@@ -492,11 +496,12 @@ function computeScoring(){
   const RTE   = MFRS.map((_,i)=> rawVal(rteRow, i));
   const DOD   = MFRS.map((_,i)=> rawVal(dodRow, i));
 
-  // Open action items (Advait) — three rows sharing a category, one per
-  // discipline. Matched by param keyword so order/wording changes are tolerated.
-  const legalRow = ROWS.find(r=>(r.cat||'').toLowerCase().includes('action item') && r.param.toLowerCase().includes('legal'));
-  const commRow  = ROWS.find(r=>(r.cat||'').toLowerCase().includes('action item') && r.param.toLowerCase().includes('commercial'));
-  const techRow  = ROWS.find(r=>(r.cat||'').toLowerCase().includes('action item') && r.param.toLowerCase().includes('technical'));
+  // Supplier status (Advait) — three rows sharing a category, one per
+  // discipline. Matched by category + param keyword so wording changes are tolerated.
+  const isStatusCat = c => { c=(c||'').toLowerCase(); return c.includes('supplier status') || c.includes('action item'); };
+  const legalRow = ROWS.find(r=>isStatusCat(r.cat) && r.param.toLowerCase().includes('legal'));
+  const commRow  = ROWS.find(r=>isStatusCat(r.cat) && r.param.toLowerCase().includes('commercial'));
+  const techRow  = ROWS.find(r=>isStatusCat(r.cat) && r.param.toLowerCase().includes('technical'));
   const ACTIONS = MFRS.map((_,i)=>({
     legal:      rawVal(legalRow, i),
     commercial: rawVal(commRow,  i),
@@ -599,8 +604,6 @@ function renderAll(){
       <div class="stat-mini"><span>RTE</span><b>${rteTxt}</b></div>
       <div class="stat-mini"><span>Wh/kg</span><b>${S.GRAV[i]!==null?S.GRAV[i]:'—'}</b></div>
       <div class="stat-mini"><span>Certs</span><b>${S.CERT[i]}</b></div>
-      <div class="stat-mini"><span>Weighted score</span><b>${S.COMPOSITE[i]!==null?S.COMPOSITE[i]:'—'}</b></div>
-      ${S.MISSING[i].length?`<div class="stat-mini" style="color:#b26a00"><span>Not scored</span><b style="font-size:11px">${S.MISSING[i].join(', ')}</b></div>`:''}
     `;
     cellrow.appendChild(div);
     setTimeout(()=>{ div.querySelector('.gauge-fill').style.height = fillPct+'%'; }, 120+i*70);
@@ -648,45 +651,49 @@ function renderAll(){
     }
   });
 
-  // ---- Methodology panel ----
-  const methodRows = [
-    {label:"Cycle Life", pct:40, reason:"Drives LCOE, warranty length and augmentation schedule over project life."},
-    {label:"Certifications", pct:25, reason:"UL9540A / UL1973 / IEC62619 / UN38.3 often gate financing, insurance and grid-code approval."},
-    {label:"Internal Resistance", pct:15, reason:"Round-trip efficiency and heat generation — affects losses and thermal design."},
-    {label:"Volumetric Energy Density", pct:10, reason:"Container/site footprint — secondary for stationary storage."},
-    {label:"Gravimetric Energy Density", pct:10, reason:"Minor structural and logistics factor."},
-    {label:"Weight", pct:0, reason:"Dropped — spread typically sits inside suppliers' own tolerance, not a real differentiator.", dropped:true},
-  ];
-  const methodDiv = document.getElementById('methodology');
-  methodDiv.innerHTML = '';
-  methodRows.forEach(r=>{
-    const row = document.createElement('div');
-    row.className = 'mrow' + (r.dropped ? ' dropped' : '');
-    row.innerHTML = `<div class="mlabel">${r.label}</div><div class="mbar-wrap"><div class="mbar" style="width:${r.pct}%"></div></div><div class="mpct">${r.pct}%</div><div class="mreason">${r.reason}</div>`;
-    methodDiv.appendChild(row);
-  });
-
-  // ---- Open action items (Advait) ----
+  // ---- Supplier status (Advait) ----
   const actionrow = document.getElementById('actionrow');
   if(actionrow){
     actionrow.innerHTML = '';
+    // Classify a status string into received / pending / none for badge colouring.
+    const classify = (v) => {
+      const t = (v||'').toLowerCase();
+      if(!t) return 'none';
+      if(t.includes('receiv') || t.includes('done') || t.includes('complet') || t.includes('signed') || t.includes('approv')) return 'received';
+      if(t.includes('pend') || t.includes('await') || t.includes('progress') || t.includes('wip')) return 'pending';
+      return 'received'; // any other non-empty value = something in hand
+    };
+    const badge = (state) => {
+      if(state==='received') return '<span class="badge ok">✓</span>';
+      if(state==='pending')  return '<span class="badge wait">●</span>';
+      return '';
+    };
     MFRS.forEach((m,i)=>{
       const a = (S.ACTIONS && S.ACTIONS[i]) || {legal:'',commercial:'',technical:''};
-      const openCount = ['legal','commercial','technical'].filter(k=>a[k]).length;
-      const line = (label, val) => `
-        <div class="action-line ${val?'open':'clear'}">
+      const techState = classify(a.technical);
+      // Header summary: how many disciplines are "received / in hand".
+      const states = [classify(a.legal), classify(a.commercial), techState];
+      const done = states.filter(s=>s==='received').length;
+      const pend = states.filter(s=>s==='pending').length;
+      const summary = pend ? `${pend} pending` : (done ? `${done} received` : 'no updates');
+      const summaryCls = pend ? 'has-open' : (done ? 'all-done' : '');
+
+      // Line renderer. `state` drives the amber/green accent; badge optional.
+      const line = (label, val, state, showBadge) => `
+        <div class="action-line ${state==='none'?'clear':state}">
           <span class="al">${label}</span>
-          <span class="av">${val || '—'}</span>
+          <span class="av">${showBadge?badge(state):''}${val || '—'}</span>
         </div>`;
+
       const div = document.createElement('div');
       div.className = 'cellcard actioncard';
       div.innerHTML = `
         <div class="term"></div>
         <div class="name">${m}</div>
-        <div class="action-count ${openCount?'has-open':''}">${openCount} open item${openCount===1?'':'s'}</div>
-        ${line('Legal', a.legal)}
-        ${line('Commercial', a.commercial)}
-        ${line('Technical', a.technical)}
+        <div class="action-count ${summaryCls}">${summary}</div>
+        ${line('Legal', a.legal, classify(a.legal), false)}
+        ${line('Commercial', a.commercial, classify(a.commercial), false)}
+        ${line('Technical', a.technical, techState, true)}
       `;
       actionrow.appendChild(div);
     });
