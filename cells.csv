@@ -22,15 +22,14 @@ SR NO,Category,Parameter,Unit,COSPOWER,EVE,HITHIUM,YOUNGY ENERGY,GREAT POWER,COR
 70%SOH"," 8000 cycle at
 25±2℃ 
 70%SOH","＞11000 cycle at  
-0.5P/0.5P
 25±2℃
  70%SOH","≥ 9000 cycle at
   25±2℃ 
 70%SOH","≥ 8000 cycle at
 25±2℃ 
-70%SOH","6000cls@80%SOH
-8000cls@70%SOH
-25℃±2℃","≥ 8000 cycle at
+70%SOH","8000 cycle at
+25℃±2℃
+70%SOH","≥ 8000 cycle at
 25±2℃ 
 70%SOH",
 19,Life time,Cycle life given at DoD,%,,,,,,,,
@@ -60,12 +59,11 @@ T-71.70±0.8
 25,Compliance,Certifications,-,"UN38.3
 UL1973 
 UL9540A 
-IEC62619",GB/T 36276-2018,"GB/T 36276-2018 -Lithium-ion battery for electrical energy storage
-IEC 62619-2022 -Secondary cells and batteries containing alkaline or other non-acid electrolytes - Safety requirements for sec
-ondary lithium cells and batteries, for use in industrial applications 
-UL 1973-2022 -Batteries for Use in Stationary and Motive Auxiliary Power Applications
-UL 9540-2019 -Test Method for Evaluating Thermal Runaway Propagation in Battery Energy Storage System
-UN38.3-2019 -Manual of Tests and Criteria ST/SG/AC.10/11/Rev.7/Amend.1, section 38.3","GB/T 36276-2018
+IEC62619",GB/T 36276-2018,"GB/T 36276-2018
+IEC 62619-2022
+UL 1973-2022
+UL 9540-2019
+UN38.3-2019 ","GB/T 36276-2018
 UN 38.3","GB/T36276-2023
 UL9540A
 UL1973
