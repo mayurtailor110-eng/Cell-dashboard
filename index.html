@@ -102,11 +102,16 @@
     width:22px; height:6px; background:var(--border); border-radius:2px 2px 0 0;
   }
   .cellcard .name{font-family:'Sora',sans-serif; font-weight:700; font-size:13.5px; margin-bottom:2px;}
-  .cellcard .model{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); margin-bottom:12px; min-height:24px; line-height:1.3;}
+  .cellcard .model{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); margin-bottom:10px; min-height:24px; line-height:1.3;}
+  .mfr-facts{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:11px;}
+  .mfr-facts .fact{background:#0A0F14; border:1px solid var(--border); border-radius:6px; padding:6px 8px; display:flex; flex-direction:column; gap:2px;}
+  .mfr-facts .fk{font-family:'JetBrains Mono',monospace; font-size:8.5px; letter-spacing:.04em; color:var(--muted);}
+  .mfr-facts .fv{font-family:'Sora',sans-serif; font-weight:700; font-size:13px; color:var(--text); line-height:1.1;}
   .gauge{height:74px; background:#0A0F14; border:1px solid var(--border); border-radius:6px; position:relative; overflow:hidden; margin-bottom:10px;}
   .gauge-fill{position:absolute; bottom:0; left:0; right:0; background:linear-gradient(180deg, var(--accent), var(--accent-dim)); transition:height .8s ease;}
   .gauge-label{position:absolute; top:6px; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--muted); letter-spacing:.04em;}
-  .score{position:absolute; bottom:6px; left:0; right:0; text-align:center; font-family:'Sora',sans-serif; font-weight:800; font-size:15px; color:#0A0F14;}
+  .score{position:absolute; bottom:16px; left:0; right:0; text-align:center; font-family:'Sora',sans-serif; font-weight:800; font-size:15px; color:#0A0F14;}
+  .score-sub{position:absolute; bottom:5px; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; letter-spacing:.02em; color:#0A0F14; opacity:.72;}
   .stat-mini{display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); padding:3px 0;}
   .stat-mini b{color:var(--text); font-weight:600;}
 
@@ -265,27 +270,31 @@ const CONFIG = {
 };
 
 /* ---- Bundled fallback snapshot (used until CONFIG.CSV_URL is set) ---- */
-const FALLBACK_MFRS = ["COSPOWER","EVE","HITHIUM","YOUNGY ENERGY","GREAT POWER","CORNEX"];
+const FALLBACK_MFRS = ["COSPOWER","EVE","HITHIUM","YOUNGY ENERGY","GREAT POWER","CORNEX","TIANNENG ENERGY"];
 const FALLBACK_ROWS = [
-{cat:"Commercial",param:"Manufacturer / Model",unit:"-",v:["COSPOWER / FP71173207A-314Ah","MB31","LFP71173207","RBA4F1","GSP71173204F","PF173 - 314A"],remark:""},
-{cat:"General",param:"Cell Chemistry",unit:"-",v:["LFP","LFP","LFP","LFP","LFP","LFP"],remark:""},
-{cat:"General",param:"Cell Format",unit:"-",v:["Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic"],remark:""},
-{cat:"Electrical",param:"Nominal Voltage",unit:"V",v:["3.2","3.2","3.2","3.2","3.2","3.2"],remark:""},
-{cat:"Electrical",param:"Rated Capacity",unit:"Ah",v:["314","314","314","314","314","314"],remark:""},
-{cat:"Electrical",param:"Energy",unit:"Wh",v:["1004.8","1004.8","1004.8","1004.8","1004.8","1004.8"],remark:""},
-{cat:"Electrical",param:"Charge Cutoff Voltage",unit:"V",v:["3.65","3.65","3.65","3.65","3.65","3.65"],remark:""},
-{cat:"Electrical",param:"Discharge Cutoff Voltage",unit:"V",v:["2.5","2.5","2.5","2.5","2.5","2.5"],remark:""},
-{cat:"Energy Density",param:"Gravimetric Energy Density",unit:"Wh/kg",v:["179.43","179.43","179.43","182.69","182.69","179.43"],remark:""},
-{cat:"Energy Density",param:"Volumetric Energy Density",unit:"Wh/L",v:["390.97","389.46","385.00","389.46","390.97","—"],remark:""},
-{cat:"Power",param:"Standard Charge/Discharge Current",unit:"C rate",v:["0.5","0.5","0.5","0.5","0.5","0.5"],remark:""},
-{cat:"Power",param:"Internal Resistance (ACIR)",unit:"mΩ",v:["0.17 ± 0.05","0.18 ± 0.05","0.20 ± 0.05","0.195 ± 0.035","0.2 ± 0.05","0.19 ± 0.05"],remark:""},
-{cat:"Life Time",param:"Cycle Life",unit:"cycles",v:["9000 cycle at 25±2℃ 70%SOH","8000 cycle at 25±2℃ 70%SOH",">11000 cycle at 0.5P/0.5P 25±2℃ 70%SOH","≥9000 cycle at 25±2℃ 70%SOH","≥8000 cycle at 25±2℃ 70%SOH","6000cls@80%SOH 8000cls@70%SOH 25±2℃"],remark:""},
-{cat:"Thermal",param:"Charge Operating Temp",unit:"°C",v:["5 ~ 60","0 ~ 60","0 ~ 60","0 ~ 55","0 ~ 60","0 ~ 60"],remark:"EVE and Great Power provide a similar range to HITHIUM."},
-{cat:"Thermal",param:"Discharge Operating Temp",unit:"°C",v:["-20 ~ 60","-30 ~ 60","-30 ~ 60","-20 ~ 55","-30 ~ 60","-20 ~ 60"],remark:""},
-{cat:"Thermal",param:"Storage Temperature",unit:"°C",v:["-20 ~ 35","-20 ~ 35","-20 ~ 35","5 ~ 25","-10 ~ 30","-10 ~ 30, ≤75% RH, no condensation"],remark:""},
-{cat:"Physical",param:"Dimensions (W×H×T)",unit:"mm",v:["173.8×207.2×71.5 ±0.5","173.7×207.2×71.70 (±0.5/±0.5/±0.8)","174.70×204.47×71.70 ±0.5","174.3×207.1×71.6 ±0.5","173.90×206.50×71.70 (±0.8/±0.8/±0.5)","174.4×207.2×71.70 (±0.85/±0.5/±0.5)"],remark:"CP, EVE, YE and GP are ~3mm taller than HITHIUM; minor width/thickness variance across all."},
-{cat:"Physical",param:"Weight",unit:"kg",v:["5.60 ± 0.3","5.60 ± 0.3","5.60 ± 0.3","5.5 ± 0.3","5.50 ± 0.15","5.60 ± 0.084"],remark:"Weight is effectively equal across all suppliers."},
-{cat:"Compliance",param:"Certifications",unit:"-",v:["UN38.3, UL1973, UL9540A, IEC62619","GB/T 36276-2018","GB/T 36276-2018, IEC62619-2022, UL1973-2022, UL9540-2019, UN38.3-2019","GB/T 36276-2018, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3"],remark:"EVE lists only one certification. GP matches HITHIUM's set. UL9540A/UL1973/IEC62619 still needed from YOUNGY; GB/T 36276-2018 detail still needed from COSPOWER."},
+{cat:"Commercial",param:"Manufacturer / Model",unit:"-",v:["COSPOWER / FP71173207A-314Ah","MB31","LFP71173207","RBA4F1","GSP71173204F","PF173 - 314A","TNS71173207B314"],remark:""},
+{cat:"Commercial",param:"Manufacturer Plant Capacity",unit:"GWh",v:["—","60","70","—","—","100","—"],remark:"Company-wide stated annual capacity. EVE: 60 GWh dedicated BESS plant (Jingmen). HITHIUM: ~70 GWh. CORNEX: 100+ GWh across Hubei bases. COSPOWER / YOUNGY / Tianneng figures still to be confirmed with suppliers."},
+{cat:"Commercial",param:"Company Age",unit:"years",v:["—","25","7","—","25","5","—"],remark:"Years since founding (as of 2026). EVE & Great Power: 2001. HITHIUM: 2019. CORNEX: 2021. COSPOWER / YOUNGY / Tianneng founding dates still to be confirmed."},
+{cat:"General",param:"Cell Chemistry",unit:"-",v:["LFP","LFP","LFP","LFP","LFP","LFP","LFP"],remark:""},
+{cat:"General",param:"Cell Format",unit:"-",v:["Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic","Prismatic"],remark:""},
+{cat:"Electrical",param:"Nominal Voltage",unit:"V",v:["3.2","3.2","3.2","3.2","3.2","3.2","3.2"],remark:""},
+{cat:"Electrical",param:"Rated Capacity",unit:"Ah",v:["314","314","314","314","314","314","314"],remark:""},
+{cat:"Electrical",param:"Energy",unit:"Wh",v:["1004.8","1004.8","1004.8","1004.8","1004.8","1004.8","1004.8"],remark:""},
+{cat:"Electrical",param:"Charge Cutoff Voltage",unit:"V",v:["3.65","3.65","3.65","3.65","3.65","3.65","3.65"],remark:""},
+{cat:"Electrical",param:"Discharge Cutoff Voltage",unit:"V",v:["2.5","2.5","2.5","2.5","2.5","2.5","2.5"],remark:""},
+{cat:"Electrical",param:"Cell RTE (Round-Trip Efficiency)",unit:"%",v:["—","—","—","—","—","96.5","—"],remark:"Round-trip DC energy efficiency. CORNEX states 96.5% for its large-format cell. Most cell datasheets do not publish RTE — request from each supplier."},
+{cat:"Energy Density",param:"Gravimetric Energy Density",unit:"Wh/kg",v:["179.43","179.43","179.43","182.69","182.69","179.43","174.75"],remark:""},
+{cat:"Energy Density",param:"Volumetric Energy Density",unit:"Wh/L",v:["390.97","389.46","385.00","389.46","390.97","389.46","386.46"],remark:""},
+{cat:"Power",param:"Standard Charge/Discharge Current",unit:"C rate",v:["0.5","0.5","0.5","0.5","0.5","0.5","0.5"],remark:""},
+{cat:"Power",param:"Internal Resistance (ACIR)",unit:"mΩ",v:["0.17 ± 0.05","0.18 ± 0.05","0.20 ± 0.05","0.195 ± 0.035","0.2 ± 0.05","0.19 ± 0.05","≤0.25"],remark:""},
+{cat:"Life Time",param:"Cycle Life",unit:"cycles",v:["9000 cycle at 25±2℃ 70%SOH","8000 cycle at 25±2℃ 70%SOH",">11000 cycle at 0.5P/0.5P 25±2℃ 70%SOH","≥9000 cycle at 25±2℃ 70%SOH","≥8000 cycle at 25±2℃ 70%SOH","6000cls@80%SOH 8000cls@70%SOH 25±2℃","≥8000 cycle at 25±2℃ 70%SOH"],remark:""},
+{cat:"Life Time",param:"Cycle Life given at DoD",unit:"%",v:["100","100","100","100","100","100","100"],remark:"Depth of discharge at which the cycle-life figure was measured. Cell-level cycle life is normally quoted at 100% DoD (full charge/discharge); confirm with each supplier where not explicitly stated."},
+{cat:"Thermal",param:"Charge Operating Temp",unit:"°C",v:["5 ~ 60","0 ~ 60","0 ~ 60","0 ~ 55","0 ~ 60","0 ~ 60","0 ~ 60"],remark:"EVE and Great Power provide a similar range to HITHIUM."},
+{cat:"Thermal",param:"Discharge Operating Temp",unit:"°C",v:["-20 ~ 60","-30 ~ 60","-30 ~ 60","-20 ~ 55","-30 ~ 60","-20 ~ 60","-20 ~ 60"],remark:""},
+{cat:"Thermal",param:"Storage Temperature",unit:"°C",v:["-20 ~ 35","-20 ~ 35","-20 ~ 35","5 ~ 25","-10 ~ 30","-10 ~ 30, ≤75% RH, no condensation","-20 ~ 25"],remark:""},
+{cat:"Physical",param:"Dimensions (W×H×T)",unit:"mm",v:["173.8×207.2×71.5 ±0.5","173.7×207.2×71.70 (±0.5/±0.5/±0.8)","174.70×204.47×71.70 ±0.5","174.3×207.1×71.6 ±0.5","173.90×206.50×71.70 (±0.8/±0.8/±0.5)","174.4×207.2×71.70 (±0.85/±0.5/±0.5)","173.8×207.2×71.70 (±1/±1/±0.8)"],remark:"CP, EVE, YE and GP are ~3mm taller than HITHIUM; minor width/thickness variance across all."},
+{cat:"Physical",param:"Weight",unit:"kg",v:["5.60 ± 0.3","5.60 ± 0.3","5.60 ± 0.3","5.5 ± 0.3","5.50 ± 0.15","5.60 ± 0.084","5.75 ± 0.15"],remark:"Weight is effectively equal across all suppliers."},
+{cat:"Compliance",param:"Certifications",unit:"-",v:["UN38.3, UL1973, UL9540A, IEC62619","GB/T 36276-2018","GB/T 36276-2018, IEC62619-2022, UL1973-2022, UL9540-2019, UN38.3-2019","GB/T 36276-2018, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3","GB/T 36276-2023"],remark:"EVE lists only one certification. GP matches HITHIUM's set. UL9540A/UL1973/IEC62619 still needed from YOUNGY; GB/T 36276-2018 detail still needed from COSPOWER; Tianneng lists only GB/T 36276-2023."},
 ];
 
 let MFRS = FALLBACK_MFRS;
@@ -425,6 +434,22 @@ function certCountOf(str){
   return seen.size;
 }
 
+/* Finds a parameter row matching ANY of the given keywords, so the card keeps
+   working regardless of exact wording or row order in the sheet. */
+function findRowAny(...keywords){
+  return ROWS.find(r => {
+    const p = r.param.toLowerCase();
+    return keywords.some(k => p.includes(k));
+  });
+}
+/* Pulls the raw datasheet value for a manufacturer from a matched row, trimmed.
+   Returns '' when the row is missing or the cell is blank/placeholder. */
+function rawVal(row, i){
+  if(!row) return '';
+  const v = (row.v[i] || '').toString().trim();
+  return (v==='' || v==='-' || v==='—') ? '' : v;
+}
+
 function computeScoring(){
   const cycleRow = findRow('cycle life');
   const certRow = findRow('certificat');
@@ -432,6 +457,18 @@ function computeScoring(){
   const gravRow = findRow('gravimetric');
   const volRow = findRow('volumetric');
   const modelRow = ROWS.find(r=>r.param.toLowerCase().includes('manufacturer') || r.param.toLowerCase().includes('model')) || ROWS[0];
+
+  // New management-card fields — matched by keyword so they auto-populate
+  // as soon as the corresponding rows in the sheet are filled in.
+  const capRow  = findRowAny('plant capacity','production capacity','manufacturing capacity');
+  const ageRow  = findRowAny('company age','company founded','year founded','founded');
+  const rteRow  = findRowAny('rte','round-trip','round trip','roundtrip','efficiency');
+  const dodRow  = findRowAny('given at dod','at dod','depth of discharge','dod');
+
+  const PLANT = MFRS.map((_,i)=> rawVal(capRow, i));
+  const AGE   = MFRS.map((_,i)=> rawVal(ageRow, i));
+  const RTE   = MFRS.map((_,i)=> rawVal(rteRow, i));
+  const DOD   = MFRS.map((_,i)=> rawVal(dodRow, i));
 
   const CYCLE = MFRS.map((_,i)=> cycleRow ? cycleLifeOf(cycleRow.v[i]||'') : null);
   const CYCLE_COND = MFRS.map((_,i)=> cycleRow ? cycleCondOf(cycleRow.v[i]||'') : '');
@@ -481,7 +518,7 @@ function computeScoring(){
     return Math.round(have.reduce((a,p)=>a+p.s*p.w,0)/wSum);
   });
 
-  return { CYCLE, CYCLE_COND, CYCLE_FLAG, CERT, IR, GRAV, VOL, MODEL, nCycle, nCert, nIR, nGrav, nVol, COMPOSITE, WEIGHTS, MISSING };
+  return { CYCLE, CYCLE_COND, CYCLE_FLAG, CERT, IR, GRAV, VOL, MODEL, PLANT, AGE, RTE, DOD, nCycle, nCert, nIR, nGrav, nVol, COMPOSITE, WEIGHTS, MISSING };
 }
 
 /* =========================================================================
@@ -500,19 +537,32 @@ function renderAll(){
     const div = document.createElement('div');
     div.className='cellcard';
     const fillPct = (cycleMax && S.CYCLE[i]) ? Math.round(S.CYCLE[i]/cycleMax*100) : 0;
+    // Format the new company/plant fields for display.
+    const plantTxt = S.PLANT[i] ? (/gwh/i.test(S.PLANT[i]) ? S.PLANT[i] : `${S.PLANT[i]} GWh`) : '—';
+    const ageTxt   = S.AGE[i] ? (/(yr|year)/i.test(S.AGE[i]) ? S.AGE[i] : `${S.AGE[i]} yrs`) : '—';
+    const rteTxt   = S.RTE[i] ? (/%/.test(S.RTE[i]) ? S.RTE[i] : `${S.RTE[i]}%`) : '—';
+    const dodTxt   = S.DOD[i] ? (/%/.test(S.DOD[i]) ? S.DOD[i] : `${S.DOD[i]}%`) : '';
     div.innerHTML = `
       <div class="term"></div>
       <div class="name">${m}</div>
       <div class="model">${S.MODEL[i]||''}</div>
+
+      <div class="mfr-facts">
+        <div class="fact"><span class="fk">PLANT CAP.</span><span class="fv">${plantTxt}</span></div>
+        <div class="fact"><span class="fk">COMPANY AGE</span><span class="fv">${ageTxt}</span></div>
+      </div>
+
       <div class="gauge">
         <div class="gauge-label">CYCLE LIFE</div>
         <div class="gauge-fill" style="height:0%"></div>
         <div class="score" style="font-size:26px">${S.CYCLE[i]!==null?S.CYCLE[i].toLocaleString():'—'}</div>
+        ${dodTxt?`<div class="score-sub">at ${dodTxt} DoD</div>`:''}
       </div>
       <div style="font-size:10px;line-height:1.35;color:#6b7280;text-align:center;margin:6px 2px 8px">
         ${S.CYCLE_COND[i]||'conditions not stated'}
         ${S.CYCLE_FLAG[i]?'<div style="color:#b26a00;font-weight:600;margin-top:2px">not like-for-like</div>':''}
       </div>
+      <div class="stat-mini"><span>RTE</span><b>${rteTxt}</b></div>
       <div class="stat-mini"><span>Wh/kg</span><b>${S.GRAV[i]!==null?S.GRAV[i]:'—'}</b></div>
       <div class="stat-mini"><span>Certs</span><b>${S.CERT[i]}</b></div>
       <div class="stat-mini"><span>Weighted score</span><b>${S.COMPOSITE[i]!==null?S.COMPOSITE[i]:'—'}</b></div>
