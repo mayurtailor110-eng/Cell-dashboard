@@ -107,6 +107,17 @@
   .mfr-facts .fact{background:#0A0F14; border:1px solid var(--border); border-radius:6px; padding:6px 8px; display:flex; flex-direction:column; gap:2px;}
   .mfr-facts .fk{font-family:'JetBrains Mono',monospace; font-size:8.5px; letter-spacing:.04em; color:var(--muted);}
   .mfr-facts .fv{font-family:'Sora',sans-serif; font-weight:700; font-size:13px; color:var(--text); line-height:1.1;}
+
+  /* ---- Open action item cards ---- */
+  .actioncard{display:flex; flex-direction:column;}
+  .action-count{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.03em; color:var(--muted); margin-bottom:12px;}
+  .action-count.has-open{color:var(--amber);}
+  .action-line{border-top:1px solid var(--border); padding:8px 0 7px; display:flex; flex-direction:column; gap:3px;}
+  .action-line .al{font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted);}
+  .action-line .av{font-size:11.5px; line-height:1.4; color:var(--text); white-space:pre-line;}
+  .action-line.clear .av{color:#4b5563;}
+  .action-line.open{border-left:2px solid var(--amber); padding-left:8px; margin-left:-2px;}
+  .action-line.open .av{color:#E7D9B0;}
   .gauge{height:74px; background:#0A0F14; border:1px solid var(--border); border-radius:6px; position:relative; overflow:hidden; margin-bottom:10px;}
   .gauge-fill{position:absolute; bottom:0; left:0; right:0; background:linear-gradient(180deg, var(--accent), var(--accent-dim)); transition:height .8s ease;}
   .gauge-label{position:absolute; top:6px; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--muted); letter-spacing:.04em;}
@@ -226,7 +237,15 @@
     <div class="section-head"><span class="num">03</span><h2>Scoring basis <span style="font-weight:400; color:var(--muted); font-size:11.5px;">&mdash; weighted for stationary BESS procurement</span></h2><div class="rule"></div></div>
     <div class="panel" id="methodology"></div>
 
-    <div class="section-head"><span class="num">04</span><h2>Key takeaways</h2><div class="rule"></div></div>
+    <div class="section-head"><span class="num">04</span><h2>Open action items <span style="font-weight:400; color:var(--muted); font-size:11.5px;">&mdash; Advait, per supplier</span></h2><div class="rule"></div></div>
+    <div class="cellrow" id="actionrow"></div>
+    <p style="font-size:11px;color:#6b7280;line-height:1.5;margin:10px 2px 0">
+      Outstanding items to close with each supplier before award, split by
+      Legal, Commercial and Technical. A dash means no open item is recorded
+      for that supplier in that category.
+    </p>
+
+    <div class="section-head"><span class="num">05</span><h2>Key takeaways</h2><div class="rule"></div></div>
     <div class="insights" id="insights"></div>
   </div>
 
@@ -295,6 +314,9 @@ const FALLBACK_ROWS = [
 {cat:"Physical",param:"Dimensions (W×H×T)",unit:"mm",v:["173.8×207.2×71.5 ±0.5","173.7×207.2×71.70 (±0.5/±0.5/±0.8)","174.70×204.47×71.70 ±0.5","174.3×207.1×71.6 ±0.5","173.90×206.50×71.70 (±0.8/±0.8/±0.5)","174.4×207.2×71.70 (±0.85/±0.5/±0.5)","173.8×207.2×71.70 (±1/±1/±0.8)"],remark:"CP, EVE, YE and GP are ~3mm taller than HITHIUM; minor width/thickness variance across all."},
 {cat:"Physical",param:"Weight",unit:"kg",v:["5.60 ± 0.3","5.60 ± 0.3","5.60 ± 0.3","5.5 ± 0.3","5.50 ± 0.15","5.60 ± 0.084","5.75 ± 0.15"],remark:"Weight is effectively equal across all suppliers."},
 {cat:"Compliance",param:"Certifications",unit:"-",v:["UN38.3, UL1973, UL9540A, IEC62619","GB/T 36276-2018","GB/T 36276-2018, IEC62619-2022, UL1973-2022, UL9540-2019, UN38.3-2019","GB/T 36276-2018, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3","GB/T 36276-2023"],remark:"EVE lists only one certification. GP matches HITHIUM's set. UL9540A/UL1973/IEC62619 still needed from YOUNGY; GB/T 36276-2018 detail still needed from COSPOWER; Tianneng lists only GB/T 36276-2023."},
+{cat:"Advait – Open Action Items",param:"Legal",unit:"-",v:["","","","","","",""],remark:""},
+{cat:"Advait – Open Action Items",param:"Commercial",unit:"-",v:["","","","","","",""],remark:""},
+{cat:"Advait – Open Action Items",param:"Technical",unit:"-",v:["","","","","","",""],remark:""},
 ];
 
 let MFRS = FALLBACK_MFRS;
@@ -470,6 +492,18 @@ function computeScoring(){
   const RTE   = MFRS.map((_,i)=> rawVal(rteRow, i));
   const DOD   = MFRS.map((_,i)=> rawVal(dodRow, i));
 
+  // Open action items (Advait) — three rows sharing a category, one per
+  // discipline. Matched by param keyword so order/wording changes are tolerated.
+  const legalRow = ROWS.find(r=>(r.cat||'').toLowerCase().includes('action item') && r.param.toLowerCase().includes('legal'));
+  const commRow  = ROWS.find(r=>(r.cat||'').toLowerCase().includes('action item') && r.param.toLowerCase().includes('commercial'));
+  const techRow  = ROWS.find(r=>(r.cat||'').toLowerCase().includes('action item') && r.param.toLowerCase().includes('technical'));
+  const ACTIONS = MFRS.map((_,i)=>({
+    legal:      rawVal(legalRow, i),
+    commercial: rawVal(commRow,  i),
+    technical:  rawVal(techRow,  i),
+  }));
+  const HAS_ACTIONS = !!(legalRow || commRow || techRow);
+
   const CYCLE = MFRS.map((_,i)=> cycleRow ? cycleLifeOf(cycleRow.v[i]||'') : null);
   const CYCLE_COND = MFRS.map((_,i)=> cycleRow ? cycleCondOf(cycleRow.v[i]||'') : '');
   const CYCLE_FLAG = cycleOutliers(CYCLE_COND);
@@ -518,7 +552,7 @@ function computeScoring(){
     return Math.round(have.reduce((a,p)=>a+p.s*p.w,0)/wSum);
   });
 
-  return { CYCLE, CYCLE_COND, CYCLE_FLAG, CERT, IR, GRAV, VOL, MODEL, PLANT, AGE, RTE, DOD, nCycle, nCert, nIR, nGrav, nVol, COMPOSITE, WEIGHTS, MISSING };
+  return { CYCLE, CYCLE_COND, CYCLE_FLAG, CERT, IR, GRAV, VOL, MODEL, PLANT, AGE, RTE, DOD, ACTIONS, HAS_ACTIONS, nCycle, nCert, nIR, nGrav, nVol, COMPOSITE, WEIGHTS, MISSING };
 }
 
 /* =========================================================================
@@ -631,6 +665,32 @@ function renderAll(){
     row.innerHTML = `<div class="mlabel">${r.label}</div><div class="mbar-wrap"><div class="mbar" style="width:${r.pct}%"></div></div><div class="mpct">${r.pct}%</div><div class="mreason">${r.reason}</div>`;
     methodDiv.appendChild(row);
   });
+
+  // ---- Open action items (Advait) ----
+  const actionrow = document.getElementById('actionrow');
+  if(actionrow){
+    actionrow.innerHTML = '';
+    MFRS.forEach((m,i)=>{
+      const a = (S.ACTIONS && S.ACTIONS[i]) || {legal:'',commercial:'',technical:''};
+      const openCount = ['legal','commercial','technical'].filter(k=>a[k]).length;
+      const line = (label, val) => `
+        <div class="action-line ${val?'open':'clear'}">
+          <span class="al">${label}</span>
+          <span class="av">${val || '—'}</span>
+        </div>`;
+      const div = document.createElement('div');
+      div.className = 'cellcard actioncard';
+      div.innerHTML = `
+        <div class="term"></div>
+        <div class="name">${m}</div>
+        <div class="action-count ${openCount?'has-open':''}">${openCount} open item${openCount===1?'':'s'}</div>
+        ${line('Legal', a.legal)}
+        ${line('Commercial', a.commercial)}
+        ${line('Technical', a.technical)}
+      `;
+      actionrow.appendChild(div);
+    });
+  }
 
   // ---- Insights (auto-generated from current data) ----
   const order = MFRS.map((m,i)=>({m,score:S.COMPOSITE[i],cert:S.CERT[i],cycle:S.CYCLE[i],flag:S.CYCLE_FLAG[i],cond:S.CYCLE_COND[i]}))
