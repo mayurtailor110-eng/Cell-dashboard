@@ -1,74 +1,24 @@
-﻿Picture,,,,Cell Comparison,,,,,,,
-SR NO,Category,Parameter,Unit,COSPOWER,EVE,HITHIUM,YOUNGY ENERGY,GREAT POWER,CORNEX, Tianneng Energy,Remarks
-1,Commercial,Manufacturer/Model,-,COSPOWER / FP71173207A-314Ah,MB31,LFP71173207,RBA4F1,GSP71173204F,PF173 - 314A,TNS71173207B314,
-2,General,Refrence Image,-,Picture,Picture,Picture,Picture,Picture,Picture,Picture,
-3,General,Cell Chemistry,-,LFP,LFP,LFP,LFP,LFP,LFP,LFP,
-4,General,Cell Format,-,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,
-5,Electrical,Nominal Voltage,V,3.2,3.2,3.2,3.2,3.2,3.2,3.2,
-6,Electrical,Rated Capacity,Ah,314,314,314,314,314,314,314,
-7,Electrical,Energy,Wh,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,
-8,Electrical,Charge Cutoff voltage,V,3.65,3.65,3.65,3.65,3.65,3.65,3.65,
-9,Electrical,Discharge Cutoff voltage,V,2.5,2.5,2.5,2.5,2.5,2.5,2.5,
-10,Energy Density,Gravimetric Energy Density,Wh/kg,179.4285714,179.4285714,179.4285714,182.6909091,182.6909091,179.4285714,174.7478261,
-11,Energy Density,Volumetric Energy Density,Wh/L,390.9727626,389.4573643,385,389.4573643,390.9727626,389.4573643,386.4615385,
-12,Power,Standard Charge / Discharge Current, C rate,0.5,0.5,0.5,0.5,0.5,0.5,0.5,
-13,Power,Internal Resistance (ACIR),mΩ,0.17 ± 0.05,0.18 ± 0.05,0.20 ± 0.05,0.195 ± 0.035,0.2 ± 0.05,0.19±0.05mΩ,≤0.25 mΩ,
-14,Life time,Cycle Life,Cycles," 9000 cycle at
-25±2℃ 
-70%SOH"," 8000 cycle at
-25±2℃ 
-70%SOH","＞11000 cycle at  
-0.5P/0.5P
-25±2℃
- 70%SOH","≥ 9000 cycle at
-  25±2℃ 
-70%SOH","≥ 8000 cycle at
-25±2℃ 
-70%SOH","6000cls@80%SOH
-8000cls@70%SOH
-25℃±2℃","≥ 8000 cycle at
-25±2℃ 
-70%SOH",
-15,Thermal,Charge Operating Temp,°C,5 ~ 60,0～ 60,0 ～ 60,0 ～ 55,0 ～ 60,0 ～ 60,0 ～ 60,EVE and Great power cell providing similar temperature operating range as HITHIUM
-16,Thermal,DisCharge Operating Temp,°C,-20 ~ 60,-30 ～ 60,-30 ～ 60,-20 ～ 55,-30 ～ 60,-20 ～ 60,-20 ～ 60,
-17,Thermal,Storage temperature,°C,-20 ~ 35,-20 ～ 35,-20～ 35,5～ 25,-10 ～ 30,"-10 ～ 30 @Storage ambient humidity ≤75% RH, no
-condensation.",-20 ～ 25,
-18,Physical,Dimensions,mm,"W- 173.8±0.5
-H - 207.2±0.5 
-T - 71.5±0.5","W - 173.7±0.5
-H - 207.2±0.5
-T - 71.70±0.8","W-174.70 ± 0.5
-H-204.47 ± 0.5 
-T-71.70 ± 0.5","W-174.3 ± 0.5 
-H- 207.1±0.5 
-T-71.6±0.5 ","W-173.90 ± 0.8 
-H- 206.50±0.8
-T-71.70±0.5","W-174.4 ± 0.85
-H- 207.2±0.5
-T-71.70±0.5 
-Thickness test condition: 27%SOC, pressure of
-300±20kgf","W-173.8± 1
-H- 207.2±1
-T-71.70±0.8 
-(300±20kgf)","CP,EVE,YE and GP cells Hight dimensions is 3mm Higher then HITHIUM Cell and minor dimension change in Width and Thickness."
-19,Physical,Weight,Kg,5.60±0.3,5.60±0.3,5.60±0.3,5.5 ± 0.3 ,5.50 ± 0.15 ,5.60 ± 0.084,5.75±0.15,Weight Almost same of all brand.
-20,Compliance,Certifications,-,"UN38.3
-UL1973 
-UL9540A 
-IEC62619",GB/T 36276-2018,"GB/T 36276-2018
-IEC 62619-2022
-UL 1973-2022 
-UL 9540-2019
-UN38.3-2019 ","GB/T 36276-2018
-UN 38.3","GB/T36276-2023
-UL9540A
-UL1973
-IEC62619
-UN38.3","GB/T36276-2023
-UL9540A
-UL1973
-IEC62619
-UN38.3",GB/T36276-2023,"1. EVE only mention one certification details.
-2. GP Contains same certification as Hithium.
-3.We required UL9540A,UL1973 & IEC62619 certification details from YE.
-4. required GB/T 36276-2018 detail from CP."
+Sr No,Category,Parameter,Unit,COSPOWER,EVE,HITHIUM,YOUNGY ENERGY,GREAT POWER,CORNEX,TIANNENG ENERGY,Remarks
+1,Commercial,Manufacturer / Model,-,COSPOWER / FP71173207A-314Ah,MB31,LFP71173207,RBA4F1,GSP71173204F,PF173 - 314A,TNS71173207B314,
+2,Commercial,Manufacturer Plant Capacity,GWh,—,60,70,—,—,100,—,Company-wide stated annual capacity. EVE: 60 GWh dedicated BESS plant (Jingmen). HITHIUM: ~70 GWh. CORNEX: 100+ GWh across Hubei bases. COSPOWER / YOUNGY / Tianneng figures still to be confirmed with suppliers.
+3,Commercial,Company Age,years,—,25,7,—,25,5,—,Years since founding (as of 2026). EVE & Great Power: 2001. HITHIUM: 2019. CORNEX: 2021. COSPOWER / YOUNGY / Tianneng founding dates still to be confirmed.
+4,General,Cell Chemistry,-,LFP,LFP,LFP,LFP,LFP,LFP,LFP,
+5,General,Cell Format,-,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,
+6,Electrical,Nominal Voltage,V,3.2,3.2,3.2,3.2,3.2,3.2,3.2,
+7,Electrical,Rated Capacity,Ah,314,314,314,314,314,314,314,
+8,Electrical,Energy,Wh,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,
+9,Electrical,Charge Cutoff Voltage,V,3.65,3.65,3.65,3.65,3.65,3.65,3.65,
+10,Electrical,Discharge Cutoff Voltage,V,2.5,2.5,2.5,2.5,2.5,2.5,2.5,
+11,Electrical,Cell RTE (Round-Trip Efficiency),%,—,—,—,—,—,96.5,—,Round-trip DC energy efficiency. CORNEX states 96.5% for its large-format cell. Most cell datasheets do not publish RTE — request from each supplier.
+12,Energy Density,Gravimetric Energy Density,Wh/kg,179.43,179.43,179.43,182.69,182.69,179.43,174.75,
+13,Energy Density,Volumetric Energy Density,Wh/L,390.97,389.46,385.00,389.46,390.97,389.46,386.46,
+14,Power,Standard Charge/Discharge Current,C rate,0.5,0.5,0.5,0.5,0.5,0.5,0.5,
+15,Power,Internal Resistance (ACIR),mΩ,0.17 ± 0.05,0.18 ± 0.05,0.20 ± 0.05,0.195 ± 0.035,0.2 ± 0.05,0.19 ± 0.05,≤0.25,
+16,Life Time,Cycle Life,cycles,9000 cycle at 25±2℃ 70%SOH,8000 cycle at 25±2℃ 70%SOH,>11000 cycle at 0.5P/0.5P 25±2℃ 70%SOH,≥9000 cycle at 25±2℃ 70%SOH,≥8000 cycle at 25±2℃ 70%SOH,6000cls@80%SOH 8000cls@70%SOH 25±2℃,≥8000 cycle at 25±2℃ 70%SOH,
+17,Life Time,Cycle Life given at DoD,%,100,100,100,100,100,100,100,Depth of discharge at which the cycle-life figure was measured. Cell-level cycle life is normally quoted at 100% DoD (full charge/discharge); confirm with each supplier where not explicitly stated.
+18,Thermal,Charge Operating Temp,°C,5 ~ 60,0 ~ 60,0 ~ 60,0 ~ 55,0 ~ 60,0 ~ 60,0 ~ 60,EVE and Great Power provide a similar range to HITHIUM.
+19,Thermal,Discharge Operating Temp,°C,-20 ~ 60,-30 ~ 60,-30 ~ 60,-20 ~ 55,-30 ~ 60,-20 ~ 60,-20 ~ 60,
+20,Thermal,Storage Temperature,°C,-20 ~ 35,-20 ~ 35,-20 ~ 35,5 ~ 25,-10 ~ 30,"-10 ~ 30, ≤75% RH, no condensation",-20 ~ 25,
+21,Physical,Dimensions (W×H×T),mm,173.8×207.2×71.5 ±0.5,173.7×207.2×71.70 (±0.5/±0.5/±0.8),174.70×204.47×71.70 ±0.5,174.3×207.1×71.6 ±0.5,173.90×206.50×71.70 (±0.8/±0.8/±0.5),174.4×207.2×71.70 (±0.85/±0.5/±0.5),173.8×207.2×71.70 (±1/±1/±0.8),"CP, EVE, YE and GP are ~3mm taller than HITHIUM; minor width/thickness variance across all."
+22,Physical,Weight,kg,5.60 ± 0.3,5.60 ± 0.3,5.60 ± 0.3,5.5 ± 0.3,5.50 ± 0.15,5.60 ± 0.084,5.75 ± 0.15,Weight is effectively equal across all suppliers.
+23,Compliance,Certifications,-,"UN38.3, UL1973, UL9540A, IEC62619",GB/T 36276-2018,"GB/T 36276-2018, IEC62619-2022, UL1973-2022, UL9540-2019, UN38.3-2019","GB/T 36276-2018, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3","GB/T 36276-2023, UL9540A, UL1973, IEC62619, UN38.3",GB/T 36276-2023,EVE lists only one certification. GP matches HITHIUM's set. UL9540A/UL1973/IEC62619 still needed from YOUNGY; GB/T 36276-2018 detail still needed from COSPOWER; Tianneng lists only GB/T 36276-2023.
