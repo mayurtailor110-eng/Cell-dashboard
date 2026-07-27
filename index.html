@@ -198,7 +198,7 @@
       <div class="brand-mark"></div>
       <div>
         <h1>Cell Comparison Dashboard</h1>
-        <span>314Ah LFP Prismatic &middot; 6 Suppliers &middot; 20 Parameters</span>
+        <span id="hero-meta">314Ah LFP Prismatic &middot; 9 suppliers &middot; 28 parameters</span>
       </div>
     </div>
     <div class="toggle">
@@ -274,7 +274,7 @@
 
   <footer>
     <span id="footer-source">Static snapshot &mdash; rebuilt from the uploaded workbook, not connected to a live file.</span>
-    <span id="footer-counts">6 suppliers &middot; 20 parameters &middot; 9 categories</span>
+    <span id="footer-counts">9 suppliers &middot; 28 parameters &middot; 10 categories</span>
   </footer>
 </div>
 
@@ -753,6 +753,13 @@ function renderAll(){
   document.getElementById('footer-source').textContent = dataSource==='live'
     ? 'Live — synced from the connected Google Sheet.'
     : 'Static snapshot — connect a live sheet via CONFIG.CSV_URL to auto-update.';
+
+  // ---- Header subtitle (keeps supplier/parameter counts in sync with data) ----
+  const heroMeta = document.getElementById('hero-meta');
+  if(heroMeta){
+    heroMeta.textContent =
+      `314Ah LFP Prismatic · ${MFRS.length} suppliers · ${ROWS.length} parameters`;
+  }
 }
 
 let activeCat = "All";
