@@ -187,6 +187,39 @@
   .mrow.dropped .mpct{color:var(--muted);}
   .mrow.dropped .mbar{background:#2A3746;}
 
+  /* ---- Requirement compliance ---- */
+  .verdict{
+    display:inline-flex; align-items:center; gap:5px; font-family:'JetBrains Mono',monospace;
+    font-size:9.5px; font-weight:700; letter-spacing:.05em; padding:3px 8px; border-radius:20px;
+    text-transform:uppercase; margin-bottom:10px;
+  }
+  .verdict.pass{background:rgba(52,211,153,.16); color:#34D399;}
+  .verdict.partial{background:rgba(255,159,67,.16); color:var(--amber);}
+  .verdict.fail{background:rgba(255,84,112,.16); color:var(--red);}
+  .verdict .vdot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+  .req-table{width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+  .req-table thead th{
+    background:var(--panel-alt); text-align:center; font-family:'JetBrains Mono',monospace; font-size:9.5px;
+    color:var(--muted); text-transform:uppercase; letter-spacing:.04em; padding:10px 8px; border-bottom:1px solid var(--border); white-space:nowrap;
+  }
+  .req-table thead th.reqcol{text-align:left; width:200px;}
+  .req-table tbody td{padding:11px 8px; font-size:12px; border-bottom:1px solid var(--border); text-align:center; vertical-align:middle;}
+  .req-table tbody tr:last-child td{border-bottom:none;}
+  .req-table tbody tr:hover{background:rgba(255,255,255,0.02);}
+  .req-table td.reqname{text-align:left;}
+  .req-table td.reqname .rn{font-weight:600; color:var(--text); font-size:12.5px;}
+  .req-table td.reqname .rt{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent-dim); margin-top:2px;}
+  .req-table td.val{font-family:'JetBrains Mono',monospace; font-size:11px; color:#B9C6D4;}
+  .req-cell{display:flex; flex-direction:column; align-items:center; gap:3px;}
+  .req-mark{width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;}
+  .req-mark.y{background:rgba(52,211,153,.18); color:#34D399;}
+  .req-mark.n{background:rgba(255,84,112,.18); color:var(--red);}
+  .req-mark.u{background:rgba(126,143,160,.14); color:var(--muted); font-size:10px;}
+  .req-cell .req-figure{font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--muted);}
+  .req-table tfoot td{padding:11px 8px; text-align:center; border-top:2px solid var(--border); background:var(--panel-alt);}
+  .req-table tfoot td.reqname{text-align:left; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;}
+
   footer{margin-top:50px; padding-top:20px; border-top:1px solid var(--border); font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
 </style>
 </head>
@@ -228,7 +261,23 @@
       without confirmation from the supplier.
     </p>
 
-    <div class="section-head"><span class="num">02</span><h2>Head-to-head</h2><div class="rule"></div></div>
+    <div class="section-head"><span class="num">02</span><h2>Project requirement compliance <span style="font-weight:400; color:var(--muted); font-size:11.5px;">&mdash; against tender / customer spec</span></h2><div class="rule"></div></div>
+    <div style="overflow-x:auto;">
+      <table class="req-table" id="reqtable">
+        <thead><tr id="req-head-row"></tr></thead>
+        <tbody id="req-tbody"></tbody>
+        <tfoot><tr id="req-foot-row"></tr></tfoot>
+      </table>
+    </div>
+    <p style="font-size:11px;color:#6b7280;line-height:1.5;margin:10px 2px 0">
+      Each cell is checked against the project specification. A cell is
+      <span style="color:#34D399;font-weight:600">PASS</span> only when it meets every
+      requirement, <span style="color:#FF9F43;font-weight:600">PARTIAL</span> when some are
+      met, and <span style="color:#FF5470;font-weight:600">FAIL</span> when none are.
+      A dash means the supplier has not stated that figure yet.
+    </p>
+
+    <div class="section-head"><span class="num">03</span><h2>Head-to-head</h2><div class="rule"></div></div>
     <div class="chartgrid">
       <div class="panel">
         <h3>Composite performance <span>normalized, higher = better</span></h3>
@@ -240,7 +289,7 @@
       </div>
     </div>
 
-    <div class="section-head"><span class="num">03</span><h2>Supplier status <span style="font-weight:400; color:var(--muted); font-size:11.5px;">&mdash; Advait, per supplier</span></h2><div class="rule"></div></div>
+    <div class="section-head"><span class="num">04</span><h2>Supplier status <span style="font-weight:400; color:var(--muted); font-size:11.5px;">&mdash; Advait, per supplier</span></h2><div class="rule"></div></div>
     <div class="cellrow" id="actionrow"></div>
     <p style="font-size:11px;color:#6b7280;line-height:1.5;margin:10px 2px 0">
       Engagement status with each supplier, split by Legal, Commercial and
@@ -248,7 +297,7 @@
       shows whether datasheets are in hand. A dash means nothing recorded yet.
     </p>
 
-    <div class="section-head"><span class="num">04</span><h2>Key takeaways</h2><div class="rule"></div></div>
+    <div class="section-head"><span class="num">05</span><h2>Key takeaways</h2><div class="rule"></div></div>
     <div class="insights" id="insights"></div>
   </div>
 
@@ -291,6 +340,30 @@ const CONFIG = {
   AUTO_REFRESH_MINUTES: 5,  // set to 0 to disable auto-refresh
 };
 
+/* =========================================================================
+   PROJECT REQUIREMENTS (tender / customer specification)
+   Edit these targets as the tender changes. Each item is matched to a
+   parameter row by keyword, and the supplier's stated figure is tested
+   against min / max / range.
+     type:'min'   -> value must be >= min
+     type:'range' -> value must be between min and max (inclusive)
+   'cond' is shown under the requirement name for context only.
+
+   basisGate: when true, the figure only counts if it was measured at the
+   required end-of-life basis — SOH 70% AND DoD 100%. If the basis differs or
+   isn't stated, the requirement FAILS (not "unknown"). SOH is read from the
+   cycle-life text; DoD is read from the "Cycle life given at DoD" row.
+   (Note: service life could instead be derived from cycle life at 2 cycles/day
+   = 730 cycles/year, i.e. 12 yr ≈ 8760 cycles — kept as a direct check for now.)
+   ========================================================================= */
+const BASIS = { soh: 70, dod: 100 };   // required end-of-life basis
+const REQUIREMENTS = [
+  { label:"Service life",            keywords:["service life","design life","calendar life"], type:"min", min:12, unit:"years", cond:"≥ 12 yr · 70% SOH · 100% DoD", extractor:"float", basisGate:true },
+  { label:"Cycle life",              keywords:["cycle life"],  type:"min",   min:9000, unit:"cycles", cond:"70% SOH · 100% DoD", extractor:"cycle", basisGate:true },
+  { label:"Gravimetric energy density", keywords:["gravimetric"], type:"range", min:170, max:185, unit:"Wh/kg", cond:"170–185 Wh/kg", extractor:"float" },
+  { label:"Volumetric energy density",  keywords:["volumetric"],  type:"range", min:380, max:395, unit:"Wh/L", cond:"380–395 Wh/L", extractor:"float" },
+];
+
 /* ---- Bundled fallback snapshot (used until CONFIG.CSV_URL is set) ---- */
 const FALLBACK_MFRS = ["COSPOWER","EVE","HITHIUM","YOUNGY ENERGY","GREAT POWER","CORNEX","TIANNENG ENERGY","REPT","NETC"];
 const FALLBACK_ROWS = [
@@ -312,6 +385,7 @@ const FALLBACK_ROWS = [
 {cat:"Power",param:"Internal Resistance (ACIR)",unit:"mΩ",v:["0.17 ± 0.05","0.18 ± 0.05","0.20 ± 0.05","0.195 ± 0.035","0.2 ± 0.05","0.19±0.05mΩ","≤0.25 mΩ","","≤0.25 mΩ"],remark:""},
 {cat:"Life time",param:"Cycle Life",unit:"Cycles",v:["9000 cycle at\n25±2℃ \n70%SOH","8000 cycle at\n25±2℃ \n70%SOH","＞11000 cycle at  \n25±2℃\n 70%SOH","≥ 9000 cycle at\n  25±2℃ \n70%SOH","≥ 8000 cycle at\n25±2℃ \n70%SOH","8000 cycle at\n25℃±2℃\n70%SOH","≥ 8000 cycle at\n25±2℃ \n70%SOH","","≥ 8000 cycle at\n25±2℃ \n70%SOH"],remark:""},
 {cat:"Life time",param:"Cycle life given at DoD",unit:"%",v:["","100","","","","","","","100"],remark:""},
+{cat:"Life time",param:"Service Life",unit:"Years",v:["","","","","","","","",""],remark:""},
 {cat:"Thermal",param:"Charge Operating Temp",unit:"°C",v:["5 ~ 60","0～ 60","0 ～ 60","0 ～ 55","0 ～ 60","0 ～ 60","0 ～ 60","","0 ～ 60"],remark:""},
 {cat:"Thermal",param:"DisCharge Operating Temp",unit:"°C",v:["-20 ~ 60","-30 ～ 60","-30 ～ 60","-20 ～ 55","-30 ～ 60","-20 ～ 60","-20 ～ 60","","-20 ～ 60"],remark:""},
 {cat:"Thermal",param:"Storage temperature",unit:"°C",v:["-20 ~ 35","-20 ～ 35","-20～ 35","5～ 25","-10 ～ 30","-10 ～ 30 @Storage ambient humidity ≤75% RH, no\ncondensation.","-20 ～ 25","","10 ～ 25"],remark:""},
@@ -561,10 +635,92 @@ function computeScoring(){
 }
 
 /* =========================================================================
+   Requirement compliance — tests each supplier's stated figure for every
+   requirement in REQUIREMENTS. Returns, per requirement, the raw figure and
+   a status of 'y' (meets), 'n' (fails) or 'u' (not stated) for each supplier,
+   plus a per-supplier verdict of PASS / PARTIAL / FAIL.
+   ========================================================================= */
+function computeCompliance(){
+  // Read the SOH the cycle/service figure was measured at, from the cycle-life text.
+  const sohRow = findRowAny('cycle life');
+  const dodRow = findRowAny('given at dod','at dod','depth of discharge','dod');
+  const sohOf = (i) => {
+    const t = sohRow ? (sohRow.v[i]||'').toString() : '';
+    const m = t.match(/(\d{2,3})\s*%\s*SOH/i);
+    return m ? parseFloat(m[1]) : null;
+  };
+  const dodOf = (i) => {
+    const t = dodRow ? (dodRow.v[i]||'').toString() : '';
+    return firstFloat(t);
+  };
+  // A cell meets the required basis only when SOH = 70% AND DoD = 100%.
+  // Anything else (mismatch OR not stated) fails the gate.
+  const basisOf = (i) => {
+    const soh = sohOf(i), dod = dodOf(i);
+    const ok = (soh === BASIS.soh) && (dod === BASIS.dod);
+    return { ok, soh, dod };
+  };
+
+  // Pull the numeric figure a requirement cares about from a supplier's cell.
+  const figureFor = (req, i) => {
+    const row = findRowAny(...req.keywords);
+    if(!row) return null;
+    const cell = (row.v[i] || '').toString();
+    if(req.extractor === 'cycle') return cycleLifeOf(cell);
+    return firstFloat(cell);
+  };
+  const passes = (req, val) => {
+    if(val === null || isNaN(val)) return 'u';
+    if(req.type === 'min')   return val >= req.min ? 'y' : 'n';
+    if(req.type === 'range') return (val >= req.min && val <= req.max) ? 'y' : 'n';
+    return 'u';
+  };
+
+  // results[reqIndex] = { req, figures:[], status:[], note:[] }
+  const results = REQUIREMENTS.map(req => {
+    const figures = MFRS.map((_,i)=> figureFor(req, i));
+    const note = MFRS.map(()=> '');
+    const status = figures.map((v,i) => {
+      let s = passes(req, v);
+      // Hard basis gate: a stated figure that isn't at 70% SOH / 100% DoD fails.
+      if(req.basisGate && s === 'y'){
+        const b = basisOf(i);
+        if(!b.ok){
+          s = 'n';
+          const bits = [];
+          bits.push(b.soh===null ? 'SOH n/a' : (b.soh!==BASIS.soh ? `${b.soh}% SOH` : ''));
+          bits.push(b.dod===null ? 'DoD n/a' : (b.dod!==BASIS.dod ? `${b.dod}% DoD` : ''));
+          note[i] = 'basis: ' + bits.filter(Boolean).join(', ');
+        }
+      }
+      return s;
+    });
+    return { req, figures, status, note };
+  });
+
+  // Per-supplier verdict across all requirements.
+  const verdict = MFRS.map((_,i)=>{
+    const st = results.map(r => r.status[i]);
+    const met   = st.filter(s=>s==='y').length;
+    const failed= st.filter(s=>s==='n').length;
+    const known = st.filter(s=>s!=='u').length;
+    let v;
+    if(known === 0) v = 'unknown';
+    else if(met === REQUIREMENTS.length) v = 'pass';
+    else if(failed === known) v = 'fail';
+    else v = 'partial';
+    return { v, met, total: REQUIREMENTS.length, known };
+  });
+
+  return { results, verdict };
+}
+
+/* =========================================================================
    Rendering
    ========================================================================= */
 function renderAll(){
   const S = computeScoring();
+  const C = computeCompliance();
 
   // ---- Manufacturer cards ----
   const cellrow = document.getElementById('cellrow');
@@ -581,10 +737,16 @@ function renderAll(){
     const ageTxt   = S.AGE[i] ? (/(yr|year)/i.test(S.AGE[i]) ? S.AGE[i] : `${S.AGE[i]} yrs`) : '—';
     const rteTxt   = S.RTE[i] ? (/%/.test(S.RTE[i]) ? S.RTE[i] : `${S.RTE[i]}%`) : '—';
     const dodTxt   = S.DOD[i] ? (/%/.test(S.DOD[i]) ? S.DOD[i] : `${S.DOD[i]}%`) : '';
+    const vd = C.verdict[i];
+    const vLabel = vd.v==='pass' ? 'PASS' : vd.v==='partial' ? 'PARTIAL' : vd.v==='fail' ? 'FAIL' : 'NO DATA';
+    const vClass = vd.v==='unknown' ? 'partial' : vd.v;
+    const vSub   = vd.known ? `${vd.met}/${vd.total} met` : 'not stated';
     div.innerHTML = `
       <div class="term"></div>
       <div class="name">${m}</div>
       <div class="model">${S.MODEL[i]||''}</div>
+
+      <span class="verdict ${vClass}"><span class="vdot"></span>${vLabel} &middot; ${vSub}</span>
 
       <div class="mfr-facts">
         <div class="fact"><span class="fk">PLANT CAP.</span><span class="fv">${plantTxt}</span></div>
@@ -608,6 +770,50 @@ function renderAll(){
     cellrow.appendChild(div);
     setTimeout(()=>{ div.querySelector('.gauge-fill').style.height = fillPct+'%'; }, 120+i*70);
   });
+
+  // ---- Requirement compliance table ----
+  const reqHead = document.getElementById('req-head-row');
+  if(reqHead){
+    reqHead.innerHTML = `
+      <th class="reqcol">Requirement</th>
+      <th class="reqcol" style="width:120px;">Target</th>
+      ${MFRS.map(m=>`<th>${m}</th>`).join('')}
+    `;
+    const reqBody = document.getElementById('req-tbody');
+    reqBody.innerHTML = '';
+    const fmt = (v)=> (v===null||isNaN(v)) ? '' : (Number.isInteger(v) ? v.toLocaleString() : v);
+    C.results.forEach(r=>{
+      const targetTxt = r.req.type==='min'
+        ? `≥ ${r.req.min.toLocaleString()} ${r.req.unit}`
+        : `${r.req.min}–${r.req.max} ${r.req.unit}`;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="reqname"><div class="rn">${r.req.label}</div><div class="rt">${r.req.cond||''}</div></td>
+        <td class="val">${targetTxt}</td>
+        ${r.status.map((s,i)=>{
+          const mark = s==='y' ? '<span class="req-mark y">✓</span>'
+                     : s==='n' ? '<span class="req-mark n">✗</span>'
+                     : '<span class="req-mark u">–</span>';
+          const fig = fmt(r.figures[i]);
+          const note = r.note && r.note[i] ? r.note[i] : '';
+          return `<td><div class="req-cell">${mark}${fig!==''?`<span class="req-figure">${fig}</span>`:''}${note?`<span class="req-figure" style="color:#b26a00">${note}</span>`:''}</div></td>`;
+        }).join('')}
+      `;
+      reqBody.appendChild(tr);
+    });
+    // Footer verdict row
+    const reqFoot = document.getElementById('req-foot-row');
+    reqFoot.innerHTML = `
+      <td class="reqname">Verdict</td>
+      <td></td>
+      ${MFRS.map((_,i)=>{
+        const vd = C.verdict[i];
+        const label = vd.v==='pass'?'PASS':vd.v==='partial'?'PARTIAL':vd.v==='fail'?'FAIL':'—';
+        const cls = vd.v==='unknown'?'partial':vd.v;
+        return `<td><span class="verdict ${cls}" style="margin:0"><span class="vdot"></span>${label}</span></td>`;
+      }).join('')}
+    `;
+  }
 
   // ---- Radar chart ----
   if(charts.radar) charts.radar.destroy();
