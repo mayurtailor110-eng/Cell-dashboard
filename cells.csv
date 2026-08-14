@@ -3,7 +3,7 @@ SR NO,Category,Parameter,Unit,COSPOWER,EVE,HITHIUM,YOUNGY ENERGY,GREAT POWER,COR
 1,Commercial,Manufacturer/Model,-,COSPOWER / FP71173207A-314Ah,MB31,LFP71173207,RBA4F1,GSP71173204F,PF173 - 314A,TNS71173207B314,CB75,,,IFP72175207A-314Ah,
 2,Commercial,Manufacturer Production Capacity (314Ah),GWh,,,,,,,,,,,,
 3,Commercial,Manufacturer Plant Capacity,GWh,,,,,,,,,,,,
-4,Commercial,Company age,Years,,,,,,,,,,,,
+4,Commercial,Company age,Years,38,25,7,28,25,5,40,9,,29,20,
 5,General,Refrence Image,-,Picture,Picture,Picture,Picture,Picture,Picture,Picture,Picture,Picture,Picture,Picture,
 6,General,Cell Chemistry,-,LFP,LFP,LFP,LFP,LFP,LFP,LFP,LFP,LFP,LFP,LFP,
 7,General,Cell Format,-,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,Prismatic,
@@ -12,7 +12,7 @@ SR NO,Category,Parameter,Unit,COSPOWER,EVE,HITHIUM,YOUNGY ENERGY,GREAT POWER,COR
 10,Electrical,Energy,Wh,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,1004.8,
 11,Electrical,Charge Cutoff voltage,V,3.65,3.65,3.65,3.65,3.65,3.65,3.65,3.65,3.65,3.65,3.65,
 12,Electrical,Discharge Cutoff voltage,V,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,
-13,Electrical,Cell RTE,%,,,,,,,,≥ 94%,≥ 94.5%,≥ 94%,≥ 94.5%,
+13,Electrical,Cell RTE,%,≥ 94.5%,≥ 94.5%,≥ 94.5%,≥ 94.5%,≥ 94.5%,≥ 94.5%,≥ 94.5%,≥ 94%,≥ 94.5%,≥ 94%,≥ 94.5%,
 14,Energy Density,Gravimetric Energy Density,Wh/kg,179.4285714,179.4285714,179.4285714,182.6909091,182.6909091,179.4285714,174.7478261,179.4285714,179.4285714,179.4285714,179.4285714,
 15,Energy Density,Volumetric Energy Density,Wh/L,390.9727626,389.4573643,385,389.4573643,390.9727626,389.4573643,386.4615385,394.0392157,389.4573643,390.9727626,387.953668,
 16,Power,Standard Charge / Discharge Current, C rate,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,
@@ -27,7 +27,7 @@ SR NO,Category,Parameter,Unit,COSPOWER,EVE,HITHIUM,YOUNGY ENERGY,GREAT POWER,COR
   25±2℃ 
 70%SOH","≥ 8000 cycle at
 25±2℃ 
-70%SOH","8000 cycle at
+70%SOH","9000 cycle at
 25℃±2℃
 70%SOH","≥ 8000 cycle at
 25±2℃ 
@@ -41,7 +41,7 @@ SR NO,Category,Parameter,Unit,COSPOWER,EVE,HITHIUM,YOUNGY ENERGY,GREAT POWER,COR
 25±2℃
  70%SOH",
 19,Life time,Cycle life given at DoD,%,100,100,100,100,100,100,100,100,100,100,100,
-20,Life time,Service life,Years,,,12,,,12,,,,,12,
+20,Life time,Service life,Years,,,12,,,12,,,,,12,Cornex submitted new data after meeting with them (Mr.jayvir visit china)
 21,Thermal,Charge Operating Temp,°C,5 ~ 60,0～ 60,0 ～ 60,0 ～ 55,0 ～ 60,0 ～ 60,0 ～ 60,0 ～ 60,0 ～ 60,0 ～ 50,0 ～ 55,EVE and Great power cell providing similar temperature operating range as HITHIUM
 22,Thermal,DisCharge Operating Temp,°C,-20 ~ 60,-30 ～ 60,-30 ～ 60,-20 ～ 55,-30 ～ 60,-20 ～ 60,-20 ～ 60,-20 ～ 60,-20 ～ 60,-20 ～ 60,-30 ～ 60,
 23,Thermal,Storage temperature,°C,-20 ~ 35,-20 ～ 35,-20～ 35,5～ 25,-10 ～ 30,"-10 ～ 30 @Storage ambient humidity ≤75% RH, no
